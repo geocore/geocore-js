@@ -26,14 +26,12 @@
     if (has_require) {
       Q = require('q');
     }
-    else throw new Error('geocore-js requires Q, see http://documentup.com/kriskowal/q/');
   }
 
   if (typeof superagent === 'undefined') {
     if (has_require) {
       superagent = require('superagent');
     }
-    else throw new Error('geocore-js requires superagent, see http://visionmedia.github.io/superagent/');
   }
 
   /**
@@ -68,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.2.1';
+  geocore.VERSION = '0.2.2';
 
   /**
    * Current Geocore base URL.

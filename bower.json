@@ -1,0 +1,31 @@
+{
+  "name": "geocore-js",
+  "version": "0.2.2",
+  "authors": [
+    "Purbo Mamad <purbo@mapmotion.jp>"
+  ],
+  "description": "MapMotion's Geocore JavaScript API",
+  "main": "geocore.js",
+  "moduleType": [
+    "amd",
+    "node"
+  ],
+  "keywords": [
+    "geocore",
+    "mapmotion"
+  ],
+  "license": "MIT",
+  "homepage": "http://www.mapmotion.jp/",
+  "private": false,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "q": "1.4.1",
+    "superagent": "1.4.0"
+  }
+}
