@@ -16,6 +16,26 @@
   // Save the previous value of the `geocore` variable.
   var previousGeocore = root.geocore;
 
+  // dependencies
+
+  var has_require = typeof require !== 'undefined';
+  var Q = root.Q;
+  var superagent = root.superagent;
+
+  if (typeof Q === 'undefined') {
+    if (has_require) {
+      Q = require('q');
+    }
+    else throw new Error('geocore-js requires Q, see http://documentup.com/kriskowal/q/');
+  }
+
+  if (typeof superagent === 'undefined') {
+    if (has_require) {
+      superagent = require('superagent');
+    }
+    else throw new Error('geocore-js requires superagent, see http://visionmedia.github.io/superagent/');
+  }
+
   /**
    * Main object representing Geocore service.
    *
@@ -48,7 +68,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.1.3';
+  geocore.VERSION = '0.2.1';
 
   /**
    * Current Geocore base URL.
