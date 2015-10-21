@@ -1,0 +1,28 @@
+{
+  "name": "geocore-js",
+  "version": "0.2.0",
+  "description": "Geocore Javascript API",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geocore/geocore-js.git"
+  },
+  "keywords": [
+    "geocore",
+    "api",
+    "mapmotion"
+  ],
+  "author": "Mamad Purbo <purbo@mapmotion.jp> (http://www.mapmotion.jp/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/geocore/geocore-js/issues"
+  },
+  "homepage": "https://github.com/geocore/geocore-js#readme",
+  "dependencies": {
+    "q": "1.4.1",
+    "superagent": "1.4.0"
+  }
+}
