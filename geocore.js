@@ -569,6 +569,7 @@
     this.tagSids; //Added from the previous js api (not in swift api)
     this.tagNames;
     this.excludedTagIds;
+    this.excludedTagNames;
     this.tagDetails;
   };
 
@@ -595,6 +596,11 @@
     return this;
   };
 
+  geocore.taggable.query.prototype.setExcludedTagNames = function (newExcludedTagNames) {
+    this.excludedTagNames = newExcludedTagNames;
+    return this;
+  };
+
   geocore.taggable.query.prototype.setTagDetails = function (newTagDetails) {
     this.tagDetails = newTagDetails;
     return this;
@@ -605,8 +611,9 @@
     if (this.tagIds) ret.tag_ids = this.tagIds; 
     if (this.tagSids) ret.tag_sids = this.tagSids;
     if (this.tagNames) ret.tag_names = this.tagNames;
-    if (this.excludedTagIds) ;
-    if (this.tagDetails) ;
+    if (this.excludedTagIds) ret.excl_tag_ids = this.excludedTagIds;
+    if (this.excludedTagNames) ret.excl_tag_names = this.excludedTagNames;
+    if (this.tagDetails) ret.tag_detail = true;
     return ret;
   };
 
@@ -782,7 +789,7 @@
         (options && options.constructor == geocore.utils.CommonOptions) ? options.data() : options));
   };
 
-  //--Rewrite until here-- 
+
 
   geocore.places.children = function (id) {
     return geocore.get('/places/' + id + '/children');
