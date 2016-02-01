@@ -552,6 +552,11 @@
     geocore.objects.operation.call(this);
     this.num;
     this.page;
+    // this.fromDate;
+    this.recentlyCreated;
+    this.recentlyUpdated;
+    this.associatedWithUnendingEvent;
+
   };
 
   geocore.objects.query.prototype = Object.create(geocore.objects.operation.prototype);
@@ -565,6 +570,16 @@
 
   geocore.objects.query.prototype.setPage = function (newPage) {
     this.page = newPage;
+    return this;
+  };
+
+  geocore.objects.query.prototype.orderByRecentlyCreated = function () {
+    this.recentlyCreated = true;
+    return this;
+  };
+
+  geocore.objects.query.prototype.orderByRecentlyUpdated = function () {
+    this.recentlyUpdated = true;
     return this;
   };
 
@@ -587,8 +602,10 @@
     var ret = {}; 
     if (this.num) ret.num = this.num;
     if (this.page) ret.page = this.page;
+    if (this.recentlyCreated) ret.recent_created = this.recentlyCreated;
+    if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
     return ret;
-  }
+  };
 
 //-----------Taggalble Query----------------------------------------------------
 
