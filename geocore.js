@@ -523,12 +523,40 @@
     return geocore.del('/objs/' + id + '/customData/' + key);
   };
 
+  /*----------Object Opetation------------------------------------------------*/
+  geocore.objects.operation = function () {
+    this.id;
+    this.customDataValue;
+    this.customDataKey;
+  };
+
+  geocore.objects.operation.prototype.setId = function (newId) {
+    this.id = newId;
+    return this;
+  };
+
+  geocore.objects.operation.prototype.havingCustomData = function (newCustomDatavalue, newCustomDataKey) {
+    this.customDataValue = newCustomDatavalue;
+    return this.setCustomDataKey(newCustomDataKey);
+  };
+
+  geocore.objects.operation.prototype.setCustomDataKey = function (newCustomDataKey) {
+    this.customDataKey = newCustomDataKey;
+    return this;
+  };
+
+  //still requires deleteCustomData funciton
 
   //----------Objects Query-----------------------------------------------------
   geocore.objects.query = function () {
+    geocore.objects.operation.call(this);
     this.num;
     this.page;
   };
+
+  geocore.objects.query.prototype = Object.create(geocore.objects.operation.prototype);
+  geocore.objects.query.prototype.constructor = geocore.objects.query;
+
 
   geocore.objects.query.prototype.setNum = function (newNum) {
     this.num = newNum;
@@ -540,8 +568,13 @@
     return this;
   };
 
-  geocore.objects.query.prototype.get = function (id) {
-    return geocore.get(id); 
+  geocore.objects.query.prototype.get = function (path) {
+    var deferred = Q.defer();
+
+    if(this.id) return geocore.get(path + this.id); 
+
+    deferred.reject('Expecting id');
+    return deferred.promise; 
   };
 
   geocore.objects.query.prototype.all = function (path) {
@@ -563,7 +596,6 @@
 
   geocore.taggable.query = function () {
     geocore.objects.query.call(this);
-    this._super = geocore.objects.query.prototype;
 
     this.tagIds;
     this.tagSids; //Added from the previous js api (not in swift api)
@@ -663,8 +695,8 @@
     this.checkinable = true;
   };
 
-  geocore.places.query.prototype.get = function (id) {
-    return this._super.get('/places/' + id);
+  geocore.places.query.prototype.get = function () {
+    return this._super.get('/places/');
   };
 
   geocore.places.query.prototype.all = function () {
@@ -828,6 +860,30 @@
   };
 
   geocore.places.items = {};
+
+  //--------------Item query----------------------------------------------------
+
+  geocore.places.query = function () {
+    geocore.objects.query.call(this);
+  };
+
+  geocore.places.query.prototype = Object.create(geocore.objects.query.prototype);
+  geocore.places.query.prototype.constructor = geocore.places.query;
+
+  geocore.places.query.prototype.setTagDetails = function (newTagDetails) {
+    this.tagDetails = newTagDetails;
+    return this;
+  };
+
+  geocore.places.query.prototype.get = function () {
+    return geocore.objects.query.prototype.get.call(this, '/items/');
+  };
+
+  geocore.places.query.prototype.all = function () {
+    return geocore.objects.query.prototype.all.call(this, '/items');
+  };
+
+  //------------End of new methods----------------------------------------------
 
   geocore.places.items.list = function(id) {
     return geocore.get('/places/' + id + '/items');
