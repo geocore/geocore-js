@@ -894,11 +894,11 @@
   //--------------Items query----------------------------------------------------
 
   geocore.items.query = function () {
-    geocore.objects.query.call(this);
+    geocore.taggable.query.call(this);
   };
 
-  geocore.items.query.prototype = Object.create(geocore.objects.query.prototype);
-  geocore.items.query.prototype.constructor = geocore.places.query;
+  geocore.items.query.prototype = Object.create(geocore.taggable.query.prototype);
+  geocore.items.query.prototype.constructor = geocore.items.query;
 
   geocore.items.query.prototype.setTagDetails = function (newTagDetails) {
     this.tagDetails = newTagDetails;
@@ -906,11 +906,11 @@
   };
 
   geocore.items.query.prototype.get = function () {
-    return geocore.objects.query.prototype.get.call(this, '/items/');
+    return geocore.taggable.query.prototype.get.call(this, '/items/');
   };
 
   geocore.items.query.prototype.all = function () {
-    return geocore.objects.query.prototype.all.call(this, '/items');
+    return geocore.taggable.query.prototype.all.call(this, '/items');
   };
 
   //------------End of new methods----------------------------------------------
