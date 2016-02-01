@@ -545,7 +545,7 @@
     return this;
   };
 
-  //still requires deleteCustomData funciton
+  //still requires deleteCustomData function
 
   //----------Objects Query-----------------------------------------------------
   geocore.objects.query = function () {
@@ -861,29 +861,6 @@
 
   geocore.places.items = {};
 
-  //--------------Item query----------------------------------------------------
-
-  geocore.places.query = function () {
-    geocore.objects.query.call(this);
-  };
-
-  geocore.places.query.prototype = Object.create(geocore.objects.query.prototype);
-  geocore.places.query.prototype.constructor = geocore.places.query;
-
-  geocore.places.query.prototype.setTagDetails = function (newTagDetails) {
-    this.tagDetails = newTagDetails;
-    return this;
-  };
-
-  geocore.places.query.prototype.get = function () {
-    return geocore.objects.query.prototype.get.call(this, '/items/');
-  };
-
-  geocore.places.query.prototype.all = function () {
-    return geocore.objects.query.prototype.all.call(this, '/items');
-  };
-
-  //------------End of new methods----------------------------------------------
 
   geocore.places.items.list = function(id) {
     return geocore.get('/places/' + id + '/items');
@@ -897,6 +874,30 @@
 
   geocore.items = {};
 
+  //--------------Items query----------------------------------------------------
+
+  geocore.items.query = function () {
+    geocore.objects.query.call(this);
+  };
+
+  geocore.items.query.prototype = Object.create(geocore.objects.query.prototype);
+  geocore.items.query.prototype.constructor = geocore.places.query;
+
+  geocore.items.query.prototype.setTagDetails = function (newTagDetails) {
+    this.tagDetails = newTagDetails;
+    return this;
+  };
+
+  geocore.items.query.prototype.get = function () {
+    return geocore.objects.query.prototype.get.call(this, '/items/');
+  };
+
+  geocore.items.query.prototype.all = function () {
+    return geocore.objects.query.prototype.all.call(this, '/items');
+  };
+
+  //------------End of new methods----------------------------------------------
+  
   geocore.items.get = function (id) {
     return geocore.get('/items/' + id);
   };
