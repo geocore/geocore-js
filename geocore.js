@@ -523,9 +523,204 @@
     return geocore.del('/objs/' + id + '/customData/' + key);
   };
 
+
+  //----------Objects Query-----------------------------------------------------
+  geocore.objects.query = function () {
+    this.num;
+    this.page;
+  };
+
+  geocore.objects.query.prototype.setNum = function (newNum) {
+    this.num = newNum;
+    return this; 
+  };
+
+  geocore.objects.query.prototype.setPage = function (newPage) {
+    this.page = newPage;
+    return this;
+  };
+
+  geocore.objects.query.prototype.get = function (id) {
+    return geocore.get(id); 
+  };
+
+  geocore.objects.query.prototype.all = function (path) {
+    return geocore.get(
+      (path ? path : '') +
+      geocore.utils.buildQueryString(this.buildQueryParameters()));
+  };
+
+  geocore.objects.query.prototype.buildQueryParameters = function () {
+    var ret = {}; 
+    if (this.num) ret.num = this.num;
+    if (this.page) ret.page = this.page;
+    return ret;
+  }
+
+//-----------Taggalble Query----------------------------------------------------
+
+  geocore.taggable = {};
+
+  geocore.taggable.query = function () {
+    geocore.objects.query.call(this);
+    this._super = geocore.objects.query.prototype;
+
+    this.tagIds;
+    this.tagSids; //Added from the previous js api (not in swift api)
+    this.tagNames;
+    this.excludedTagIds;
+    this.tagDetails;
+  };
+
+  geocore.taggable.query.prototype = Object.create(geocore.objects.query.prototype);
+  geocore.taggable.query.prototype.constructor = geocore.taggable.query;
+
+  geocore.taggable.query.prototype.setTagIds = function (newTagIds) {
+    this.tagIds = newTagIds;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setTagSystemIds = function (newTagSids) {
+    this.tagSids = newTagSids;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setTagNames = function (newTagNames) {
+    this.tagNames = newTagNames;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setExcludedTagIds = function (newExcludedTagIds) {
+    this.excludedTagIds = newExcludedTagIds;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setTagDetails = function (newTagDetails) {
+    this.tagDetails = newTagDetails;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.buildQueryParameters = function () {
+    var ret = geocore.objects.query.prototype.buildQueryParameters.call(this);
+    if (this.tagIds) ret.tag_ids = this.tagIds; 
+    if (this.tagSids) ret.tag_sids = this.tagSids;
+    if (this.tagNames) ret.tag_names = this.tagNames;
+    if (this.excludedTagIds) ;
+    if (this.tagDetails) ;
+    return ret;
+  };
+
   /* ======= Places API ============================================================================================= */
 
   geocore.places = {};
+
+  //-----------Places Query-------------------
+  //Constructor usage var container = new geocore.places.query
+  geocore.places.query = function () {
+    geocore.taggable.query.call(this);
+    this._super = geocore.taggable.query.prototype;
+
+    this.centerLatitude;
+    this.centerLongitude;
+    this.radius;
+    this.minimumLatitude;
+    this.minimumLongitude;
+    this.maximumLatitude;
+    this.maximumLongitude;
+    this.checkinable;
+  };
+
+  geocore.places.query.prototype = Object.create(geocore.taggable.query.prototype);
+  geocore.places.query.prototype.constructor = geocore.places.query;
+
+  geocore.places.query.prototype.setCenter = function (newCenterLatitude, newCenterLongitude) {
+    this.centerLatitude = newCenterLatitude;
+    this.centerLongitude = newCenterLongitude
+    return this;
+  }
+
+  geocore.places.query.prototype.setRadius = function (newRadius) {
+    this.radius = newRadius;
+    return this;
+  };
+
+  geocore.places.query.prototype.setRectangle = function (newMinimumLatitude, newMinimumLongitude, newMaximumLatitude, newMaximumLongitude) {
+    this.minimumLatitude = newMinimumLatitude;
+    this.minimumLongitude = newMinimumLongitude;
+    this.maximumLatitude = newMaximumLatitude;
+    this.maximumLongitude = newMaximumLongitude;
+      return this;
+  };  
+
+  geocore.places.query.prototype.onlyCheckinable = function () {
+    this.checkinable = true;
+  };
+
+  geocore.places.query.prototype.get = function (id) {
+    return this._super.get('/places/' + id);
+  };
+
+  geocore.places.query.prototype.all = function () {
+    return this._super.all.call(this, '/places');
+  };
+
+  geocore.places.query.prototype.nearest = function() {
+    var deferred = Q.defer();
+    var dict = this._super.buildQueryParameters.call(this);
+
+    if (this.centerLatitude && this.centerLongitude) {
+      dict.lat = this.centerLatitude;
+      dict.lon = this.centerLongitude;
+      if(this.checkinable) dict.checkinable = 'true';
+      return geocore.get(
+        "/places/search/nearest" + geocore.utils.buildQueryString(dict));
+    }
+    deferred.reject('Expecting center lat-lon');
+    return deferred.promise; 
+  }
+
+  geocore.places.query.prototype.smallestBounds = function() {
+    var deferred = Q.defer();
+    var dict = this._super.buildQueryParameters.call(this);
+
+    if (this.centerLatitude && this.centerLongitude) {
+      dict.lat = this.centerLatitude;
+      dict.lon = this.centerLongitude;
+      if(this.checkinable) dict.checkinable = 'true';
+      return geocore.get(
+        "/places/search/smallestbounds" + geocore.utils.buildQueryString(dict));
+    }
+    deferred.reject('Expecting center lat-lon');
+    return deferred.promise; 
+  }
+
+  geocore.places.query.prototype.withinRectangle = function() {
+    var deferred = Q.defer();
+    var dict = this._super.buildQueryParameters.call(this);
+
+    if (this.minimumLatitude && this.minimumLongitude 
+      && this.maximumLatitude && this.maximumLongitude) {
+      dict.min_lat = this.minimumLatitude;
+      dict.min_lon = this.minimumLongitude;
+      dict.max_lat = this.maximumLatitude;
+      dict.max_lon = this.maximumLongitude;
+      if(this.checkinable) dict.checkinable = 'true';
+      return geocore.get(
+        "/places/search/within/rect" + geocore.utils.buildQueryString(dict));
+    }
+    deferred.reject('Expecting min-max lat-lon');
+    return deferred.promise; 
+  }
+
+  geocore.places.query.prototype.events = function() {
+
+  }
+
+  geocore.places.query.prototype.eventRelationships = function() {
+
+  }
+
+  //------End of added methods---------
 
   geocore.places.get = function (id) {
     return geocore.get('/places/' + id);
@@ -537,6 +732,7 @@
       geocore.utils.buildQueryString(
         (options && options.constructor == geocore.utils.CommonOptions) ? options.data() : options));
   };
+
 
   geocore.places.searchWithinRect = function (latitudeTop, longitudeLeft, latitudeBottom, longitudeRight, options) {
     return geocore.get(
@@ -585,6 +781,8 @@
       geocore.utils.buildQueryString(
         (options && options.constructor == geocore.utils.CommonOptions) ? options.data() : options));
   };
+
+  //--Rewrite until here-- 
 
   geocore.places.children = function (id) {
     return geocore.get('/places/' + id + '/children');
