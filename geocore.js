@@ -523,7 +523,8 @@
     return geocore.del('/objs/' + id + '/customData/' + key);
   };
 
-  /*----------Object Opetation------------------------------------------------*/
+  /* ======= Objects Request Builder: Operation  */
+  
   geocore.objects.operation = function () {
     this.id;
     this.customDataValue;
@@ -545,9 +546,8 @@
     return this;
   };
 
-  //still requires deleteCustomData function
+  /* ======= Objects Request Builder: Query  */
 
-  //----------Objects Query-----------------------------------------------------
   geocore.objects.query = function () {
     geocore.objects.operation.call(this);
     this.num;
@@ -607,7 +607,7 @@
     return ret;
   };
 
-//-----------Taggalble Query----------------------------------------------------
+  /* ======= Taggable Objects Request Builder: Query  */
 
   geocore.taggable = {};
 
@@ -670,8 +670,8 @@
 
   geocore.places = {};
 
-  //-----------Places Query-------------------
-  //Constructor usage var container = new geocore.places.query
+  /* ======= Place Request Builder: Query  */
+  
   geocore.places.query = function () {
     geocore.taggable.query.call(this);
     this._super = geocore.taggable.query.prototype;
@@ -893,7 +893,7 @@
 
   geocore.items = {};
 
-  //--------------Items query----------------------------------------------------
+  /* ======= Item Request Builder: Query  */
 
   geocore.items.query = function () {
     geocore.taggable.query.call(this);
@@ -1000,6 +1000,8 @@
   /* ======= Events API ============================================================================================== */
 
   geocore.events = {};
+
+  /* ======= Event Request Builder: Query  */
 
   geocore.events.query = function () {
     geocore.taggable.query.call(this);
