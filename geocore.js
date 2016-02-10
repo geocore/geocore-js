@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.2.2';
+  geocore.VERSION = '0.3.0';
 
   /**
    * Current Geocore base URL.
@@ -523,11 +523,45 @@
     return geocore.del('/objs/' + id + '/customData/' + key);
   };
 
+  /*----------Object Opetation------------------------------------------------*/
+  geocore.objects.operation = function () {
+    this.id;
+    this.customDataValue;
+    this.customDataKey;
+  };
+
+  geocore.objects.operation.prototype.setId = function (newId) {
+    this.id = newId;
+    return this;
+  };
+
+  geocore.objects.operation.prototype.havingCustomData = function (newCustomDatavalue, newCustomDataKey) {
+    this.customDataValue = newCustomDatavalue;
+    return this.setCustomDataKey(newCustomDataKey);
+  };
+
+  geocore.objects.operation.prototype.setCustomDataKey = function (newCustomDataKey) {
+    this.customDataKey = newCustomDataKey;
+    return this;
+  };
+
+  //still requires deleteCustomData function
+
   //----------Objects Query-----------------------------------------------------
   geocore.objects.query = function () {
+    geocore.objects.operation.call(this);
     this.num;
     this.page;
+    // this.fromDate;
+    this.recentlyCreated;
+    this.recentlyUpdated;
+    this.associatedWithUnendingEvent;
+
   };
+
+  geocore.objects.query.prototype = Object.create(geocore.objects.operation.prototype);
+  geocore.objects.query.prototype.constructor = geocore.objects.query;
+
 
   geocore.objects.query.prototype.setNum = function (newNum) {
     this.num = newNum;
@@ -539,8 +573,23 @@
     return this;
   };
 
-  geocore.objects.query.prototype.get = function (id) {
-    return geocore.get(id); 
+  geocore.objects.query.prototype.orderByRecentlyCreated = function () {
+    this.recentlyCreated = true;
+    return this;
+  };
+
+  geocore.objects.query.prototype.orderByRecentlyUpdated = function () {
+    this.recentlyUpdated = true;
+    return this;
+  };
+
+  geocore.objects.query.prototype.get = function (path) {
+    var deferred = Q.defer();
+
+    if(this.id) return geocore.get(path + this.id); 
+
+    deferred.reject('Expecting id');
+    return deferred.promise; 
   };
 
   geocore.objects.query.prototype.all = function (path) {
@@ -553,8 +602,10 @@
     var ret = {}; 
     if (this.num) ret.num = this.num;
     if (this.page) ret.page = this.page;
+    if (this.recentlyCreated) ret.recent_created = this.recentlyCreated;
+    if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
     return ret;
-  }
+  };
 
 //-----------Taggalble Query----------------------------------------------------
 
@@ -562,12 +613,12 @@
 
   geocore.taggable.query = function () {
     geocore.objects.query.call(this);
-    this._super = geocore.objects.query.prototype;
 
     this.tagIds;
-    this.tagSids; //Added from the previous api (not in swift api)
+    this.tagSids; //Added from the previous js api (not in swift api)
     this.tagNames;
     this.excludedTagIds;
+    this.excludedTagNames;
     this.tagDetails;
   };
 
@@ -594,6 +645,11 @@
     return this;
   };
 
+  geocore.taggable.query.prototype.setExcludedTagNames = function (newExcludedTagNames) {
+    this.excludedTagNames = newExcludedTagNames;
+    return this;
+  };
+
   geocore.taggable.query.prototype.setTagDetails = function (newTagDetails) {
     this.tagDetails = newTagDetails;
     return this;
@@ -604,8 +660,9 @@
     if (this.tagIds) ret.tag_ids = this.tagIds; 
     if (this.tagSids) ret.tag_sids = this.tagSids;
     if (this.tagNames) ret.tag_names = this.tagNames;
-    if (this.excludedTagIds) ;
-    if (this.tagDetails) ;
+    if (this.excludedTagIds) ret.excl_tag_ids = this.excludedTagIds;
+    if (this.excludedTagNames) ret.excl_tag_names = this.excludedTagNames;
+    if (this.tagDetails) ret.tag_detail = true;
     return ret;
   };
 
@@ -632,8 +689,31 @@
   geocore.places.query.prototype = Object.create(geocore.taggable.query.prototype);
   geocore.places.query.prototype.constructor = geocore.places.query;
 
-  geocore.places.query.prototype.get = function (id) {
-    return this._super.get('/places/' + id);
+  geocore.places.query.prototype.setCenter = function (newCenterLatitude, newCenterLongitude) {
+    this.centerLatitude = newCenterLatitude;
+    this.centerLongitude = newCenterLongitude
+    return this;
+  }
+
+  geocore.places.query.prototype.setRadius = function (newRadius) {
+    this.radius = newRadius;
+    return this;
+  };
+
+  geocore.places.query.prototype.setRectangle = function (newMinimumLatitude, newMinimumLongitude, newMaximumLatitude, newMaximumLongitude) {
+    this.minimumLatitude = newMinimumLatitude;
+    this.minimumLongitude = newMinimumLongitude;
+    this.maximumLatitude = newMaximumLatitude;
+    this.maximumLongitude = newMaximumLongitude;
+      return this;
+  };  
+
+  geocore.places.query.prototype.onlyCheckinable = function () {
+    this.checkinable = true;
+  };
+
+  geocore.places.query.prototype.get = function () {
+    return this._super.get('/places/');
   };
 
   geocore.places.query.prototype.all = function () {
@@ -709,6 +789,7 @@
         (options && options.constructor == geocore.utils.CommonOptions) ? options.data() : options));
   };
 
+
   geocore.places.searchWithinRect = function (latitudeTop, longitudeLeft, latitudeBottom, longitudeRight, options) {
     return geocore.get(
       '/places/search/within/rect' +
@@ -757,6 +838,8 @@
         (options && options.constructor == geocore.utils.CommonOptions) ? options.data() : options));
   };
 
+
+
   geocore.places.children = function (id) {
     return geocore.get('/places/' + id + '/children');
   };
@@ -795,18 +878,72 @@
 
   geocore.places.items = {};
 
+
   geocore.places.items.list = function(id) {
     return geocore.get('/places/' + id + '/items');
   };
 
-  geocore.places.items.add = function(id, item) {
-    return geocore.post('/places/' + id + '/items', item);
+  geocore.places.items.add = function(id, item, tagNames) {
+    var path = '/places/' + id + '/items' 
+    + ((tagNames && tagNames.length > 0) ? ('?tag_names=' + encodeURIComponent(tagNames.join(','))) : '');
+    return geocore.post(path, item);
   };
 
   /* ======= Items API ============================================================================================== */
 
   geocore.items = {};
 
+  //--------------Items query----------------------------------------------------
+
+  geocore.items.query = function () {
+    geocore.taggable.query.call(this);
+  };
+
+  geocore.items.query.prototype = Object.create(geocore.taggable.query.prototype);
+  geocore.items.query.prototype.constructor = geocore.items.query;
+
+  geocore.items.query.prototype.get = function () {
+    return geocore.taggable.query.prototype.get.call(this, '/items/')
+      .then(function(item){
+        var itemQuery = new geocore.items.query(); 
+        item.events = function() {return itemQuery.setId(item.id).events();};
+        item.places = function() {return itemQuery.setId(item.id).places();};
+        return item;
+      });
+  };
+
+  geocore.items.query.prototype.all = function () {
+    return geocore.taggable.query.prototype.all.call(this, '/items')
+      .then(function(items){
+        var itemQuery = new geocore.items.query();
+        items.map(function(item){
+          item.events = function() {return itemQuery.setId(item.id).events();};
+          item.places = function() {return itemQuery.setId(item.id).places();};
+        });
+        return items;
+      });
+  };
+  
+  geocore.items.query.prototype.places = function () {
+    var deferred = Q.defer();
+    if (this.id) {
+      return geocore.get('/items/' + this.id + '/places');
+    }
+    deferred.reject('Expecting id');
+    return deferred.promise;
+  }
+
+  geocore.items.query.prototype.events = function () {
+    var deferred = Q.defer();
+    if (this.id) {
+      return geocore.get('/items/' + this.id + '/events');
+    }
+    deferred.reject('Expecting id');
+    return deferred.promise;
+  }
+
+  //------------End of new methods----------------------------------------------
+  
   geocore.items.get = function (id) {
     return geocore.get('/items/' + id);
   };
@@ -845,6 +982,40 @@
   geocore.items.tags.del = function(id, tagNames) {
     return geocore.post('/items/' + id + '/tags?del_tag_names=' + encodeURIComponent(tagNames.join(',')), null);
   };
+
+  geocore.items.places = {};
+
+  geocore.items.places.list = function(id) {
+    return geocore.get('/items/' + id + '/places');
+  };
+
+  geocore.items.places.update = function(itemId, placeId) {
+    return geocore.post('/items/' + itemId + '/places/' + placeId, null);
+  };
+
+  geocore.items.places.del = function(itemId, placeId) {
+    return geocore.del('/items/' + itemId + '/places/'+ placeId);
+  };
+
+  /* ======= Events API ============================================================================================== */
+
+  geocore.events = {};
+
+  geocore.events.query = function () {
+    geocore.taggable.query.call(this);
+  };
+
+  geocore.events.query.prototype = Object.create(geocore.taggable.query.prototype);
+  geocore.events.query.prototype.constructor = geocore.events.query;
+
+  geocore.events.query.prototype.get = function () {
+    return geocore.taggable.query.prototype.get.call(this, '/events/');
+  };
+
+  geocore.events.query.prototype.all = function () {
+    return geocore.taggable.query.prototype.all.call(this, '/events');
+  };
+
 
   /* ======= References API ========================================================================================= */
 
