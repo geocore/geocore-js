@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.3.0';
+  geocore.VERSION = '0.3.1';
 
   /**
    * Current Geocore base URL.
@@ -981,6 +981,12 @@
 
   geocore.items.tags.del = function(id, tagNames) {
     return geocore.post('/items/' + id + '/tags?del_tag_names=' + encodeURIComponent(tagNames.join(',')), null);
+  };
+
+  geocore.items.tags.replace = function(id, oldTag, newTag) {
+    return geocore.post('/items/' + id + 
+      '/tags?tag_names=' + encodeURIComponent(newTag) + 
+      '&del_tag_names=' + encodeURIComponent(oldTag), null);
   };
 
   geocore.items.places = {};
