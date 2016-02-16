@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.3.1';
+  geocore.VERSION = '0.3.2';
 
   /**
    * Current Geocore base URL.
@@ -878,7 +878,6 @@
 
   geocore.places.items = {};
 
-
   geocore.places.items.list = function(id) {
     return geocore.get('/places/' + id + '/items');
   };
@@ -904,42 +903,53 @@
 
   geocore.items.query.prototype.get = function () {
     return geocore.taggable.query.prototype.get.call(this, '/items/')
-      .then(function(item){
+      .then(function(item) {
         var itemQuery = new geocore.items.query(); 
-        item.events = function() {return itemQuery.setId(item.id).events();};
-        item.places = function() {return itemQuery.setId(item.id).places();};
+        item.events = function() {
+          return itemQuery.setId(item.id).events();
+        };
+        item.places = function() {
+          return itemQuery.setId(item.id).places();
+        };
         return item;
       });
   };
 
+  // TODO: combine promise handler of get(above) & all
   geocore.items.query.prototype.all = function () {
     return geocore.taggable.query.prototype.all.call(this, '/items')
-      .then(function(items){
+      .then(function(items) {
         var itemQuery = new geocore.items.query();
         items.map(function(item){
-          item.events = function() {return itemQuery.setId(item.id).events();};
-          item.places = function() {return itemQuery.setId(item.id).places();};
+          item.events = function() {
+            return itemQuery.setId(item.id).events();
+          };
+          item.places = function() {
+            return itemQuery.setId(item.id).places();
+          };
         });
         return items;
       });
   };
   
   geocore.items.query.prototype.places = function () {
-    var deferred = Q.defer();
     if (this.id) {
       return geocore.get('/items/' + this.id + '/places');
+    } else {
+      var deferred = Q.defer();
+      deferred.reject('Expecting id');
+      return deferred.promise;
     }
-    deferred.reject('Expecting id');
-    return deferred.promise;
   }
 
   geocore.items.query.prototype.events = function () {
-    var deferred = Q.defer();
     if (this.id) {
       return geocore.get('/items/' + this.id + '/events');
+    } else {
+      var deferred = Q.defer();
+      deferred.reject('Expecting id');
+      return deferred.promise;
     }
-    deferred.reject('Expecting id');
-    return deferred.promise;
   }
 
   //------------End of new methods----------------------------------------------
@@ -1001,6 +1011,12 @@
 
   geocore.items.places.del = function(itemId, placeId) {
     return geocore.del('/items/' + itemId + '/places/'+ placeId);
+  };
+
+  geocore.items.events = {};
+
+  geocore.items.events.update = function(itemId, eventId) {
+    return geocore.post('/items/' + itemId + '/events/' + eventId, null);
   };
 
   /* ======= Events API ============================================================================================== */
