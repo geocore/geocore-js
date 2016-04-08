@@ -2,9 +2,9 @@ describe("Geocore User API", function() {
 
   before(function(done) {
     geocore
-      .setup('http://dev1.geocore.jp/api', 'PRO-TEST-1')
-      .login('USE-TEST-1-ADMIN-1', 'nimda')
-      .then(function(token) { done(); });
+        .setup('http://_replace_with_geocore_api_endpoint', '#replace_with_test_project_id')
+        .login('#replace_with_test_user_id', '#replace_with_test_user_password')
+        .then(function(token) { done(); });
   });
 
   describe("get", function() {
@@ -27,6 +27,7 @@ describe("Geocore User API", function() {
         .then(function (user) { return user.name; })
         .should.eventually.equal('Administrator JS Test');
     });
+    
     // return the name to the original name (Administrator)
     it("should returns user object with name back to original", function() {
       return geocore.users

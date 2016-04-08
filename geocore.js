@@ -3,7 +3,7 @@
  * MapMotion's Geocore JavaScript API.
  *
  * @author Purbo Mohamad <purbo@mapmotion.jp>
- * @copyright MapMotion, K.K. 2014-2015
+ * @copyright MapMotion, K.K. 2014-2016
  */
 
 (function() {
@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.3.2';
+  geocore.VERSION = '0.4.0';
 
   /**
    * Current Geocore base URL.
@@ -212,7 +212,7 @@
   geocore.login = function(id, password) {
     var deferred = Q.defer();
     geocore
-      .post('/auth?id=' + id + '&password=' + password + "&project_id=" + geocore.PROJECT_ID, null)
+      .post('/auth', 'id=' + id + '&password=' + password + "&project_id=" + geocore.PROJECT_ID)
       .then(function(result) {
         geocore.ACCESS_TOKEN = result.token;
         deferred.resolve(geocore.ACCESS_TOKEN);
@@ -276,6 +276,14 @@
     return (queryStr.length == 0) ? '' : ('?' + queryStr);
   };
 
+  /**
+   * Combining 2 maps (deprecated)
+   *
+   * @deprecated
+   * @param options1
+   * @param options2
+   * @returns {{}}
+   */
   geocore.utils.mergeOptions = function(options1, options2) {
     var ret = {};
     var name;
@@ -284,6 +292,18 @@
     return ret;
   };
 
+  /**
+   * Generic query options (deprecated in favor of builder pattern)
+   *
+   * @deprecated
+   * @param num
+   * @param page
+   * @param tagSids
+   * @param tagIds
+   * @param tagNames
+   * @returns {geocore.CommonOptions.utils}
+   * @constructor
+   */
   geocore.utils.CommonOptions = function(num, page, tagSids, tagIds, tagNames) {
     this.num = num || 0;
     this.page = page || 0;
@@ -329,38 +349,6 @@
     return this;
   };
 
-  /* ======= Users API ============================================================================================== */
-
-  /**
-   * User services.
-   *
-   * @namespace geocore.users
-   */
-  geocore.users = {};
-
-  /**
-   * Get user's detail information.
-   *
-   * @memberof geocore.users
-   * @param {string} id - User's ID or system ID.
-   * @returns {object} promise that will be fulfilled when the Geocore server returns user object.
-   */
-  geocore.users.get = function (id) {
-    return geocore.get('/users/' + id);
-  };
-
-  /**
-   * Update user's information.
-   *
-   * @memberof geocore.users
-   * @param {string} id - User's ID or system ID.
-   * @param {object} userUpdate - JSON object with user's information to be updated.
-   * @returns {object} promise that will be fulfilled when the Geocore server returns updated user object.
-   */
-  geocore.users.update = function (id, userUpdate) {
-    return geocore.post('/users/' + id, userUpdate);
-  };
-
   /* ======= Objects API ============================================================================================ */
 
   /**
@@ -379,6 +367,175 @@
    */
   geocore.objects.get = function (id) {
     return geocore.get('/objs/' + id);
+  };
+
+  /* ======= Objects Request Builder: Operation  */
+
+  /**
+   * Object operation builder base class.
+   *
+   * @class
+   */
+  geocore.objects.operation = function() {
+    this.id = null;
+    this.customDataValue = null;
+    this.customDataKey = null;
+  };
+
+  /**
+   * Sets the object ID to be used in the operation.
+   *
+   * @param id
+   * @returns {geocore.operation.objects.operation}
+   */
+  geocore.objects.operation.prototype.withId = function (id) {
+    this.id = id;
+    return this;
+  };
+
+  geocore.objects.operation.prototype.havingCustomData = function (customDatavalue, customDataKey) {
+    this.customDataValue = customDatavalue;
+    return this.setCustomDataKey(customDataKey);
+  };
+
+  geocore.objects.operation.prototype.withCustomDataKey = function (customDataKey) {
+    this.customDataKey = customDataKey;
+    return this;
+  };
+
+  /* ======= Objects Request Builder: Query  */
+
+  /**
+   * Object query builder base class.
+   *
+   * @class
+   */
+  geocore.objects.query = function () {
+    geocore.objects.operation.call(this);
+    this.name = null;
+    this.num = -1;
+    this._page = -1;
+    this.recentlyCreated = false;
+    this.recentlyUpdated = false;
+    this.parentId = null;
+  };
+
+  geocore.objects.query.prototype = Object.create(geocore.objects.operation.prototype);
+  geocore.objects.query.prototype.constructor = geocore.objects.query;
+
+  geocore.objects.query.prototype.withName = function(name) {
+    this.name = name;
+    return this;
+  };
+
+  geocore.objects.query.prototype.numberPerPage = function(num) {
+    this.num = num;
+    return this;
+  };
+
+  geocore.objects.query.prototype.page = function(page) {
+    this._page = page;
+    return this;
+  };
+
+  geocore.objects.query.prototype.orderByRecentlyCreated = function () {
+    this.recentlyCreated = true;
+    return this;
+  };
+
+  geocore.objects.query.prototype.orderByRecentlyUpdated = function () {
+    this.recentlyUpdated = true;
+    return this;
+  };
+
+  geocore.objects.query.prototype.withParent = function(parentId) {
+    this.parentId = parentId;
+    return this;
+  }
+
+  geocore.objects.query.prototype.get = function(path) {
+    var deferred = Q.defer();
+
+    if (!path) path = '/objs'
+    if (this.id) return geocore.get(path + '/' + this.id);
+
+    deferred.reject('Expecting id');
+    return deferred.promise;
+  };
+
+  geocore.objects.query.prototype.all = function (path) {
+    return geocore.get(
+        (path ? path : '/objs') +
+        geocore.utils.buildQueryString(this.buildQueryParameters()));
+  };
+
+  geocore.objects.query.prototype.buildQueryParameters = function () {
+    var ret = {};
+    if (this.num) ret.num = this.num;
+    if (this.page) ret.page = this._page;
+    if (this.recentlyCreated) ret.recent_created = this.recentlyCreated;
+    if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
+    if (this.parentId) ret.parent = this.parentId;
+    return ret;
+  };
+
+  /* ======= Taggable Objects Request Builder: Query  */
+
+  geocore.taggable = {};
+
+  geocore.taggable.query = function () {
+    geocore.objects.query.call(this);
+
+    this.tagIds;
+    this.tagSids; //Added from the previous js api (not in swift api)
+    this.tagNames;
+    this.excludedTagIds;
+    this.excludedTagNames;
+    this.tagDetails;
+  };
+
+  geocore.taggable.query.prototype = Object.create(geocore.objects.query.prototype);
+  geocore.taggable.query.prototype.constructor = geocore.taggable.query;
+
+  geocore.taggable.query.prototype.setTagIds = function (newTagIds) {
+    this.tagIds = newTagIds;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setTagSystemIds = function (newTagSids) {
+    this.tagSids = newTagSids;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setTagNames = function (newTagNames) {
+    this.tagNames = newTagNames;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setExcludedTagIds = function (newExcludedTagIds) {
+    this.excludedTagIds = newExcludedTagIds;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setExcludedTagNames = function (newExcludedTagNames) {
+    this.excludedTagNames = newExcludedTagNames;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.setTagDetails = function (newTagDetails) {
+    this.tagDetails = newTagDetails;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.buildQueryParameters = function () {
+    var ret = geocore.objects.query.prototype.buildQueryParameters.call(this);
+    if (this.tagIds) ret.tag_ids = this.tagIds;
+    if (this.tagSids) ret.tag_sids = this.tagSids;
+    if (this.tagNames) ret.tag_names = this.tagNames;
+    if (this.excludedTagIds) ret.excl_tag_ids = this.excludedTagIds;
+    if (this.excludedTagNames) ret.excl_tag_names = this.excludedTagNames;
+    if (this.tagDetails) ret.tag_detail = true;
+    return ret;
   };
 
   /* ======= Objects API: Data  */
@@ -523,147 +680,132 @@
     return geocore.del('/objs/' + id + '/customData/' + key);
   };
 
-  /* ======= Objects Request Builder: Operation  */
-  
-  geocore.objects.operation = function () {
-    this.id;
-    this.customDataValue;
-    this.customDataKey;
+  /* ======= Users API ============================================================================================== */
+
+  /**
+   * User services.
+   *
+   * @namespace geocore.users
+   */
+  geocore.users = {};
+
+  /**
+   * Get user's detail information.
+   *
+   * @memberof geocore.users
+   * @param {string} id - User's ID or system ID.
+   * @returns {object} promise that will be fulfilled when the Geocore server returns user object.
+   */
+  geocore.users.get = function (id) {
+    return geocore.get('/users/' + id);
   };
 
-  geocore.objects.operation.prototype.setId = function (newId) {
-    this.id = newId;
-    return this;
+  /**
+   * Update user's information.
+   *
+   * @memberof geocore.users
+   * @param {string} id - User's ID or system ID.
+   * @param {object} userUpdate - JSON object with user's information to be updated.
+   * @returns {object} promise that will be fulfilled when the Geocore server returns updated user object.
+   */
+  geocore.users.update = function (id, userUpdate) {
+    return geocore.post('/users/' + id, userUpdate);
   };
 
-  geocore.objects.operation.prototype.havingCustomData = function (newCustomDatavalue, newCustomDataKey) {
-    this.customDataValue = newCustomDatavalue;
-    return this.setCustomDataKey(newCustomDataKey);
+  /* ======= Groups API ============================================================================================= */
+
+  /**
+   * Group service.
+   *
+   * @namespace geocore.groups
+   */
+  geocore.groups = {};
+
+  /**
+   * Get group's detail information.
+   *
+   * @memberof geocore.groups
+   * @param {string} id - Group's ID or system ID.
+   * @returns {object} promise that will be fulfilled when the Geocore server returns group object.
+   */
+  geocore.groups.get = function(id) {
+    return geocore.get('/groups/' + id);
   };
 
-  geocore.objects.operation.prototype.setCustomDataKey = function (newCustomDataKey) {
-    this.customDataKey = newCustomDataKey;
-    return this;
+  /**
+   * Delete the group with the specified ID.
+   *
+   * @param id - Group's ID or system ID to be deleted.
+   * @returns {Object} promise that will be fulfilled when the Geocore server returns deleted group object.
+   */
+  geocore.groups.del = function(id) {
+    return geocore.del('/groups/' + id);
   };
 
-  /* ======= Objects Request Builder: Query  */
+  /* ======= Place Request Builder: Query  */
 
-  geocore.objects.query = function () {
-    geocore.objects.operation.call(this);
-    this.num;
-    this.page;
-    // this.fromDate;
-    this.recentlyCreated;
-    this.recentlyUpdated;
-    this.associatedWithUnendingEvent;
-
+  geocore.groups.query = function () {
+    geocore.taggable.query.call(this);
+    this._super = geocore.taggable.query.prototype;
   };
 
-  geocore.objects.query.prototype = Object.create(geocore.objects.operation.prototype);
-  geocore.objects.query.prototype.constructor = geocore.objects.query;
+  geocore.groups.query.prototype = Object.create(geocore.taggable.query.prototype);
+  geocore.groups.query.prototype.constructor = geocore.groups.query;
 
-
-  geocore.objects.query.prototype.setNum = function (newNum) {
-    this.num = newNum;
-    return this; 
+  geocore.groups.query.prototype.get = function () {
+    return this._super.get.call(this, '/groups');
   };
 
-  geocore.objects.query.prototype.setPage = function (newPage) {
-    this.page = newPage;
-    return this;
+  geocore.groups.query.prototype.all = function () {
+    return this._super.all.call(this, '/groups');
   };
 
-  geocore.objects.query.prototype.orderByRecentlyCreated = function () {
-    this.recentlyCreated = true;
-    return this;
+  geocore.groups.query.prototype.authorities = function () {
+    if (this.id) {
+      return geocore.get('/groups/' + this.id + '/auths');
+    } else {
+      var deferred = Q.defer();
+      deferred.reject('Expecting id');
+      return deferred.promise;
+    }
   };
 
-  geocore.objects.query.prototype.orderByRecentlyUpdated = function () {
-    this.recentlyUpdated = true;
-    return this;
+  /**
+   * Add new group and optionally assign users to the group
+   *
+   * @param newGroup - New group to be created.
+   * @param userIds - Array of user IDs to be assigned to the newly created group.
+   * @returns {Object} promise that will be fulfilled when the Geocore server returns newly created group object.
+   */
+  geocore.groups.add = function (newGroup, userIds) {
+    return geocore.post(
+        '/groups' + ((userIds && userIds.length > 0) ? ('?user_ids=' + encodeURIComponent(userIds.join(','))) : ''),
+        newGroup);
   };
 
-  geocore.objects.query.prototype.get = function (path) {
-    var deferred = Q.defer();
+  /* ======= Authorities API =========================================================================================*/
 
-    if(this.id) return geocore.get(path + this.id); 
+  /**
+   * Authority service.
+   *
+   * @namespace geocore.authorities
+   */
+  geocore.authorities = {};
 
-    deferred.reject('Expecting id');
-    return deferred.promise; 
+  geocore.authorities.add = function (newAuthority, groupIds) {
+    return geocore.post(
+        '/auths' + ((groupIds && groupIds.length > 0) ? ('?group_ids=' + encodeURIComponent(groupIds.join(','))) : ''),
+        newAuthority);
   };
 
-  geocore.objects.query.prototype.all = function (path) {
-    return geocore.get(
-      (path ? path : '') +
-      geocore.utils.buildQueryString(this.buildQueryParameters()));
-  };
-
-  geocore.objects.query.prototype.buildQueryParameters = function () {
-    var ret = {}; 
-    if (this.num) ret.num = this.num;
-    if (this.page) ret.page = this.page;
-    if (this.recentlyCreated) ret.recent_created = this.recentlyCreated;
-    if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
-    return ret;
-  };
-
-  /* ======= Taggable Objects Request Builder: Query  */
-
-  geocore.taggable = {};
-
-  geocore.taggable.query = function () {
-    geocore.objects.query.call(this);
-
-    this.tagIds;
-    this.tagSids; //Added from the previous js api (not in swift api)
-    this.tagNames;
-    this.excludedTagIds;
-    this.excludedTagNames;
-    this.tagDetails;
-  };
-
-  geocore.taggable.query.prototype = Object.create(geocore.objects.query.prototype);
-  geocore.taggable.query.prototype.constructor = geocore.taggable.query;
-
-  geocore.taggable.query.prototype.setTagIds = function (newTagIds) {
-    this.tagIds = newTagIds;
-    return this;
-  };
-
-  geocore.taggable.query.prototype.setTagSystemIds = function (newTagSids) {
-    this.tagSids = newTagSids;
-    return this;
-  };
-
-  geocore.taggable.query.prototype.setTagNames = function (newTagNames) {
-    this.tagNames = newTagNames;
-    return this;
-  };
-
-  geocore.taggable.query.prototype.setExcludedTagIds = function (newExcludedTagIds) {
-    this.excludedTagIds = newExcludedTagIds;
-    return this;
-  };
-
-  geocore.taggable.query.prototype.setExcludedTagNames = function (newExcludedTagNames) {
-    this.excludedTagNames = newExcludedTagNames;
-    return this;
-  };
-
-  geocore.taggable.query.prototype.setTagDetails = function (newTagDetails) {
-    this.tagDetails = newTagDetails;
-    return this;
-  };
-
-  geocore.taggable.query.prototype.buildQueryParameters = function () {
-    var ret = geocore.objects.query.prototype.buildQueryParameters.call(this);
-    if (this.tagIds) ret.tag_ids = this.tagIds; 
-    if (this.tagSids) ret.tag_sids = this.tagSids;
-    if (this.tagNames) ret.tag_names = this.tagNames;
-    if (this.excludedTagIds) ret.excl_tag_ids = this.excludedTagIds;
-    if (this.excludedTagNames) ret.excl_tag_names = this.excludedTagNames;
-    if (this.tagDetails) ret.tag_detail = true;
-    return ret;
+  /**
+   * Delete the authority with the specified ID.
+   *
+   * @param id - Authority's ID or system ID to be deleted.
+   * @returns {Object} promise that will be fulfilled when the Geocore server returns deleted authority object.
+   */
+  geocore.authorities.del = function(id) {
+    return geocore.del('/auths/' + id);
   };
 
   /* ======= Places API ============================================================================================= */
@@ -713,7 +855,7 @@
   };
 
   geocore.places.query.prototype.get = function () {
-    return this._super.get('/places/');
+    return this._super.get.call(this, '/places');
   };
 
   geocore.places.query.prototype.all = function () {
@@ -790,6 +932,16 @@
   };
 
 
+  /**
+   *
+   * @deprecated
+   * @param latitudeTop
+   * @param longitudeLeft
+   * @param latitudeBottom
+   * @param longitudeRight
+   * @param options
+   * @returns {Object}
+   */
   geocore.places.searchWithinRect = function (latitudeTop, longitudeLeft, latitudeBottom, longitudeRight, options) {
     return geocore.get(
       '/places/search/within/rect' +
@@ -804,6 +956,15 @@
           (options && options.constructor == geocore.utils.CommonOptions) ? options.data() : options)));
   };
 
+  /**
+   *
+   * @deprecated
+   * @param latitude
+   * @param longitude
+   * @param radius
+   * @param options
+   * @returns {Object}
+   */
   geocore.places.searchWithinCircle = function (latitude, longitude, radius, options) {
     return geocore.get(
       '/places/search/within/circle' +
@@ -819,6 +980,14 @@
             options)));
   };
 
+  /**
+   *
+   * @deprecated
+   * @param latitude
+   * @param longitude
+   * @param options
+   * @returns {Object}
+   */
   geocore.places.searchNearest = function (latitude, longitude, options) {
     return geocore.get(
       '/places/search/nearest' +
@@ -831,6 +1000,13 @@
           (options && options.constructor == geocore.utils.CommonOptions) ? options.data() : options)));
   };
 
+  /**
+   *
+   * @deprecated
+   * @param namePrefix
+   * @param options
+   * @returns {Object}
+   */
   geocore.places.searchByName = function (namePrefix, options) {
     return geocore.get(
       '/places/search/name/' + encodeURIComponent(prefix) +
