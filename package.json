@@ -1,6 +1,6 @@
 {
   "name": "geocore-js",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "MapMotion's Geocore JavaScript API",
   "main": "geocore.js",
   "scripts": {

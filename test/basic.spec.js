@@ -16,15 +16,15 @@ describe("Geocore basic API", function() {
   describe("Login", function() {
     it("should return valid token", function() {
       return geocore
-        .setup('http://_replace_with_geocore_api_endpoint', '#replace_with_test_project_id')
-        .login('#replace_with_test_user_id', '#replace_with_test_user_password')
-        .should.eventually.equal('#replace_with_test_token');
+          .setup('http://_replace_with_geocore_api_endpoint', '#replace_with_test_project_id')
+          .login('#replace_with_test_user_id', '#replace_with_test_user_password')
+          .should.eventually.equal('#replace_with_test_token');
     });
     it("should cause invalid user/password error", function() {
       return geocore
           .setup('http://_replace_with_geocore_api_endpoint', '#replace_with_test_project_id')
-        .login('dummy', 'dummy')
-        .should.be.rejected;
+          .login('dummy', 'dummy')
+          .should.be.rejected;
     });
   });
 

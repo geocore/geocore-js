@@ -7,7 +7,7 @@ describe("Geocore User API", function() {
         .then(function(token) { done(); });
   });
 
-  describe("get", function() {
+  describe("Get user", function() {
     it("should returns user object with the specified ID", function() {
       return geocore.users
         .get('USE-TEST-1-ADMIN-1')
@@ -16,7 +16,15 @@ describe("Geocore User API", function() {
     });
   });
 
-  describe("update", function() {
+  describe("Get user's groups", function() {
+    it("should returns user object with the specified ID", function() {
+      return geocore.users
+          .groups('USE-TEST-1-ADMIN-1')
+          .should.eventually.have.length(2);
+    });
+  });
+
+  describe("Update user", function() {
     it("should returns user object with updated name", function() {
       return geocore.users
         .get('USE-TEST-1-ADMIN-1')

@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.0';
+  geocore.VERSION = '0.4.1';
 
   /**
    * Current Geocore base URL.
@@ -708,9 +708,18 @@
    * @param {object} userUpdate - JSON object with user's information to be updated.
    * @returns {object} promise that will be fulfilled when the Geocore server returns updated user object.
    */
-  geocore.users.update = function (id, userUpdate) {
+  geocore.users.update = function(id, userUpdate) {
     return geocore.post('/users/' + id, userUpdate);
   };
+
+  /**
+   * Get user's groups.
+   *
+   * @param {string} id - User's ID or system ID.
+   */
+  geocore.users.groups = function(id) {
+    return geocore.get('/users/' + id + '/groups');
+  }
 
   /* ======= Groups API ============================================================================================= */
 
