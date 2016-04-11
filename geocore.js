@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.1';
+  geocore.VERSION = '0.4.2';
 
   /**
    * Current Geocore base URL.
@@ -486,51 +486,44 @@
   geocore.taggable.query = function () {
     geocore.objects.query.call(this);
 
-    this.tagIds;
-    this.tagSids; //Added from the previous js api (not in swift api)
-    this.tagNames;
-    this.excludedTagIds;
-    this.excludedTagNames;
-    this.tagDetails;
+    this.tagIds = null;
+    this.tagNames = null;
+    this.excludedTagIds = null;
+    this.excludedTagNames = null;
+    this.tagDetails = false;
   };
 
   geocore.taggable.query.prototype = Object.create(geocore.objects.query.prototype);
   geocore.taggable.query.prototype.constructor = geocore.taggable.query;
 
-  geocore.taggable.query.prototype.setTagIds = function (newTagIds) {
+  geocore.taggable.query.prototype.withTagIds = function (newTagIds) {
     this.tagIds = newTagIds;
     return this;
   };
 
-  geocore.taggable.query.prototype.setTagSystemIds = function (newTagSids) {
-    this.tagSids = newTagSids;
-    return this;
-  };
-
-  geocore.taggable.query.prototype.setTagNames = function (newTagNames) {
+  geocore.taggable.query.prototype.withTagNames = function (newTagNames) {
     this.tagNames = newTagNames;
     return this;
   };
 
-  geocore.taggable.query.prototype.setExcludedTagIds = function (newExcludedTagIds) {
+  geocore.taggable.query.prototype.excludeTagIds = function (newExcludedTagIds) {
     this.excludedTagIds = newExcludedTagIds;
     return this;
   };
 
-  geocore.taggable.query.prototype.setExcludedTagNames = function (newExcludedTagNames) {
+  geocore.taggable.query.prototype.excludeTagNames = function (newExcludedTagNames) {
     this.excludedTagNames = newExcludedTagNames;
     return this;
   };
 
-  geocore.taggable.query.prototype.setTagDetails = function (newTagDetails) {
-    this.tagDetails = newTagDetails;
+  geocore.taggable.query.prototype.withTagDetails = function() {
+    this.tagDetails = true;
     return this;
   };
 
   geocore.taggable.query.prototype.buildQueryParameters = function () {
     var ret = geocore.objects.query.prototype.buildQueryParameters.call(this);
     if (this.tagIds) ret.tag_ids = this.tagIds;
-    if (this.tagSids) ret.tag_sids = this.tagSids;
     if (this.tagNames) ret.tag_names = this.tagNames;
     if (this.excludedTagIds) ret.excl_tag_ids = this.excludedTagIds;
     if (this.excludedTagNames) ret.excl_tag_names = this.excludedTagNames;
