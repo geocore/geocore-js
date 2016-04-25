@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.2';
+  geocore.VERSION = '0.4.3';
 
   /**
    * Current Geocore base URL.
@@ -101,7 +101,9 @@
     }
 
     request.end(function(err, res) {
-      if (res.ok) {
+      if (err) {
+        deferred.reject("Unexpected result: " + err);
+      } else if (res.ok) {
         if (res.body.status) {
           if ("success" === res.body.status) {
             deferred.resolve(res.body.result);
@@ -671,6 +673,44 @@
 
   geocore.objects.customData.del = function(id, key) {
     return geocore.del('/objs/' + id + '/customData/' + key);
+  };
+
+  /* ======= Tags API ============================================================================================== */
+
+  /**
+   * Tag services.
+   *
+   * @namespace geocore.tags
+   */
+  geocore.tags = {};
+
+  geocore.tags.query = function () {
+    geocore.taggable.query.call(this);
+    this._super = geocore.taggable.query.prototype;
+
+    this.idPrefix = null;
+  };
+
+  geocore.tags.query.prototype = Object.create(geocore.taggable.query.prototype);
+  geocore.tags.query.prototype.constructor = geocore.tags.query;
+
+  geocore.tags.query.prototype.withIdPrefix = function (idPrefix) {
+    this.idPrefix = idPrefix;
+    return this;
+  };
+
+  geocore.tags.query.prototype.get = function () {
+    return this._super.get.call(this, '/tags');
+  };
+
+  geocore.tags.query.prototype.all = function () {
+    return this._super.all.call(this, '/tags');
+  };
+
+  geocore.tags.query.prototype.buildQueryParameters = function () {
+    var ret = {};
+    if (this.idPrefix) ret.id_prefix = this.idPrefix;
+    return ret;
   };
 
   /* ======= Users API ============================================================================================== */

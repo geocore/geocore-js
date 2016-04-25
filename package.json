@@ -1,6 +1,6 @@
 {
   "name": "geocore-js",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "MapMotion's Geocore JavaScript API",
   "main": "geocore.js",
   "scripts": {
@@ -28,6 +28,8 @@
   "devDependencies": {
     "chai": "^3.3.0",
     "chai-as-promised": "^5.1.0",
+    "chai-string": "1.2.0",
+    "chai-things": "0.2.0",
     "gulp": "^3.9.0",
     "gulp-bump": "^1.0.0",
     "gulp-connect": "^2.2.0",

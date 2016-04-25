@@ -1,5 +1,5 @@
 describe("Geocore basic API", function() {
-  
+
   describe("Setup", function() {
     it("should have values as passed in the constructor", function() {
       geocore("base_url_0", "project_id_0");
@@ -12,7 +12,7 @@ describe("Geocore basic API", function() {
       expect(geocore.PROJECT_ID).to.equal("project_id_1");
     });
   });
-  
+
   describe("Login", function() {
     it("should return valid token", function() {
       return geocore
