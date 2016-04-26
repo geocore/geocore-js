@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.3';
+  geocore.VERSION = '0.4.4';
 
   /**
    * Current Geocore base URL.
@@ -711,6 +711,22 @@
     var ret = {};
     if (this.idPrefix) ret.id_prefix = this.idPrefix;
     return ret;
+  };
+
+  geocore.tags.get = function (id) {
+    return geocore.get('/tags/' + id);
+  };
+
+  geocore.tags.add = function (newTag) {
+    return geocore.post('/tags', newTag);
+  };
+
+  geocore.tags.update = function(id, tagUpdate) {
+    return geocore.post('/tags/' + id, tagUpdate);
+  };
+
+  geocore.tags.del = function(id) {
+    return geocore.del('/tags/' + id);
   };
 
   /* ======= Users API ============================================================================================== */
