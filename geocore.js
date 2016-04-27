@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.4';
+  geocore.VERSION = '0.4.5';
 
   /**
    * Current Geocore base URL.
@@ -1078,9 +1078,9 @@
     return geocore.get('/places/' + id + '/children');
   };
 
-  geocore.places.add = function (newPlace, tagNames) {
+  geocore.places.add = function (newPlace, tagIds) {
     return geocore.post(
-      '/places' + ((tagNames && tagNames.length > 0) ? ('?tag_names=' + encodeURIComponent(tagNames.join(','))) : ''),
+      '/places' + ((tagIds && tagIds.length > 0) ? ('?tag_ids=' + encodeURIComponent(tagIds.join(','))) : ''),
       newPlace);
   };
 
