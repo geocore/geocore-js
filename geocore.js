@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.5';
+  geocore.VERSION = '0.4.6';
 
   /**
    * Current Geocore base URL.
@@ -768,7 +768,7 @@
    */
   geocore.users.groups = function(id) {
     return geocore.get('/users/' + id + '/groups');
-  }
+  };
 
   /* ======= Groups API ============================================================================================= */
 
@@ -788,6 +788,16 @@
    */
   geocore.groups.get = function(id) {
     return geocore.get('/groups/' + id);
+  };
+
+  /**
+   * Get group's users
+   *
+   * @param {string} id - Group's ID or system ID.
+   * @returns {Object}
+   */
+  geocore.groups.users = function(id) {
+    return geocore.get('/groups/' + id + '/users');
   };
 
   /**
