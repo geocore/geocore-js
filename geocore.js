@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.6';
+  geocore.VERSION = '0.4.7';
 
   /**
    * Current Geocore base URL.
@@ -784,7 +784,7 @@
    *
    * @memberof geocore.groups
    * @param {string} id - Group's ID or system ID.
-   * @returns {object} promise that will be fulfilled when the Geocore server returns group object.
+   * @returns {object} promise that will be fulfilled when the Geocore server returns the group object.
    */
   geocore.groups.get = function(id) {
     return geocore.get('/groups/' + id);
@@ -804,7 +804,7 @@
    * Delete the group with the specified ID.
    *
    * @param id - Group's ID or system ID to be deleted.
-   * @returns {Object} promise that will be fulfilled when the Geocore server returns deleted group object.
+   * @returns {Object} promise that will be fulfilled when the Geocore server returns the deleted group object.
    */
   geocore.groups.del = function(id) {
     return geocore.del('/groups/' + id);
@@ -859,6 +859,27 @@
    * @namespace geocore.authorities
    */
   geocore.authorities = {};
+
+  /**
+   * Get an authority object's detail information.
+   *
+   * @memberof geocore.authorities
+   * @param {string} id - Authority's ID or system ID.
+   * @returns {object} promise that will be fulfilled when the Geocore server returns the authority object.
+   */
+  geocore.authorities.get = function(id) {
+    return geocore.get('/auths/' + id);
+  };
+
+  /**
+   * Get all groups that has the specified authority.
+   *
+   * @param {string} id - Authority's ID or system ID.
+   * @returns {Object}
+   */
+  geocore.authorities.groups = function(id) {
+    return geocore.get('/auths/' + id + '/groups');
+  };
 
   geocore.authorities.add = function (newAuthority, groupIds) {
     return geocore.post(
