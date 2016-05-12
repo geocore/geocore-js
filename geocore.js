@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.7';
+  geocore.VERSION = '0.4.8';
 
   /**
    * Current Geocore base URL.
@@ -419,6 +419,8 @@
     this._page = -1;
     this.recentlyCreated = false;
     this.recentlyUpdated = false;
+    this.fromDate = null;
+    this.toDate = null;
     this.parentId = null;
   };
 
@@ -450,10 +452,32 @@
     return this;
   };
 
+  /**
+   * Limits the query result to all objects updated after the specified date.
+   *
+   * @param {string} utcDateString UTC date formatted as YYYY/MM/DD hh:mm:ss
+   * @returns {geocore.query.objects}
+   */
+  geocore.objects.query.prototype.updatedAfter = function(utcDateString) {
+    this.fromDate = utcDateString;
+    return this;
+  };
+
+  /**
+   * Limits the query result to all objects updated before the specified date.
+   *
+   * @param {string} utcDateString UTC date formatted as YYYY/MM/DD hh:mm:ss
+   * @returns {geocore.query.objects}
+   */
+  geocore.objects.query.prototype.updatedBefore = function(utcDateString) {
+    this.toDate = utcDateString;
+    return this;
+  };
+
   geocore.objects.query.prototype.withParent = function(parentId) {
     this.parentId = parentId;
     return this;
-  }
+  };
 
   geocore.objects.query.prototype.get = function(path) {
     var deferred = Q.defer();
@@ -477,6 +501,8 @@
     if (this.page) ret.page = this._page;
     if (this.recentlyCreated) ret.recent_created = this.recentlyCreated;
     if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
+    if (this.fromDate) ret.from_date = this.fromDate;
+    if (this.toDate) ret.to_date = this.toDate;
     if (this.parentId) ret.parent = this.parentId;
     return ret;
   };
