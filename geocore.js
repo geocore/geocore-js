@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.8';
+  geocore.VERSION = '0.4.9';
 
   /**
    * Current Geocore base URL.
@@ -897,13 +897,15 @@
     return geocore.get('/auths/' + id);
   };
 
+  geocore.authorities.groups = {};
+
   /**
    * Get all groups that has the specified authority.
    *
    * @param {string} id - Authority's ID or system ID.
    * @returns {Object}
    */
-  geocore.authorities.groups = function(id) {
+  geocore.authorities.groups.all  = function(id) {
     return geocore.get('/auths/' + id + '/groups');
   };
 
@@ -912,6 +914,10 @@
         '/auths' + ((groupIds && groupIds.length > 0) ? ('?group_ids=' + encodeURIComponent(groupIds.join(','))) : ''),
         newAuthority);
   };
+
+  geocore.authorities.groups.del = function(authorityId, groupId) {
+    return geocore.del('/auths/' + authorityId + "/groups/" + groupId);
+  }
 
   /**
    * Delete the authority with the specified ID.
