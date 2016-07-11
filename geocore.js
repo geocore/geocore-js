@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.9';
+  geocore.VERSION = '0.4.10';
 
   /**
    * Current Geocore base URL.
@@ -796,6 +796,25 @@
     return geocore.get('/users/' + id + '/groups');
   };
 
+  /**
+   * Add/register new user.
+   *
+   * @param {object} newUser - JSON object with new user's information.
+   * @param groupIds - String or Array of String of group IDs the newly registered user should be assigned to.
+   * @returns {object} promise that will be fulfilled when the Geocore server returns newly registered user object.
+   */
+  geocore.users.add = function(newUser, groupIds) {
+    var groupIdsParameters = "";
+    if (groupIds) {
+      if (Object.prototype.toString.call(groupIds) === '[object Array]') {
+        groupIdsParameters = "&group_ids=" + encodeURIComponent(groupIds.join(','));
+      } else if (typeof groupIds === 'string') {
+        groupIdsParameters = "&group_ids=" + groupIds;
+      }
+    }
+    return geocore.post('/register?project_id=' + geocore.PROJECT_ID + groupIdsParameters, newUser);
+  };
+
   /* ======= Groups API ============================================================================================= */
 
   /**
@@ -834,6 +853,18 @@
    */
   geocore.groups.del = function(id) {
     return geocore.del('/groups/' + id);
+  };
+
+  /**
+   * Update group's information.
+   *
+   * @memberof geocore.groups
+   * @param {string} id - Group's ID or system ID.
+   * @param {object} groupUpdate - JSON object with group's information to be updated.
+   * @returns {object} promise that will be fulfilled when the Geocore server returns updated group object.
+   */
+  geocore.groups.update = function(id, groupUpdate) {
+    return geocore.post('/groups/' + id, groupUpdate);
   };
 
   /* ======= Place Request Builder: Query  */
