@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.10';
+  geocore.VERSION = '0.4.11';
 
   /**
    * Current Geocore base URL.
@@ -815,6 +815,16 @@
     return geocore.post('/register?project_id=' + geocore.PROJECT_ID + groupIdsParameters, newUser);
   };
 
+  /**
+   * Delete the user with the specified ID.
+   *
+   * @param id - User's ID or system ID to be deleted.
+   * @returns {Object} promise that will be fulfilled when the Geocore server returns the deleted user object.
+   */
+  geocore.users.del = function(id) {
+    return geocore.del('/users/' + id);
+  };
+
   /* ======= Groups API ============================================================================================= */
 
   /**
@@ -902,10 +912,32 @@
    * @param userIds - Array of user IDs to be assigned to the newly created group.
    * @returns {Object} promise that will be fulfilled when the Geocore server returns newly created group object.
    */
-  geocore.groups.add = function (newGroup, userIds) {
-    return geocore.post(
-        '/groups' + ((userIds && userIds.length > 0) ? ('?user_ids=' + encodeURIComponent(userIds.join(','))) : ''),
-        newGroup);
+
+  /**
+   *
+   * @param newGroup - New group to be created.
+   * @param userIds - Array of user IDs to be assigned to the newly created group.
+   * @param {boolean} setCreator - Whether to automatically add logged in user as the creator of the group. Default is true.
+   * @returns {Object} promise that will be fulfilled when the Geocore server returns newly created group object.
+   */
+  geocore.groups.add = function (newGroup, userIds, setCreator) {
+
+    var params = "";
+
+    if (setCreator !== undefined) {
+      if (!setCreator) {
+        params = "set_creator=false";
+      }
+    }
+
+    if (userIds && userIds.length > 0) {
+      if (params.length > 0) {
+        params = params + "&";
+      }
+      params = params + "user_ids=" + encodeURIComponent(userIds.join(','));
+    }
+
+    return geocore.post('/groups' + (params.length > 0 ? ("?" + params) : ""), newGroup);
   };
 
   /* ======= Authorities API =========================================================================================*/
