@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.11';
+  geocore.VERSION = '0.4.12';
 
   /**
    * Current Geocore base URL.
@@ -801,9 +801,11 @@
    *
    * @param {object} newUser - JSON object with new user's information.
    * @param groupIds - String or Array of String of group IDs the newly registered user should be assigned to.
+   *
    * @returns {object} promise that will be fulfilled when the Geocore server returns newly registered user object.
    */
-  geocore.users.add = function(newUser, groupIds) {
+  geocore.users.add = function(newUser, groupIds, userGroupTypes, userGroupApprovalStatuses) {
+
     var groupIdsParameters = "";
     if (groupIds) {
       if (Object.prototype.toString.call(groupIds) === '[object Array]') {
@@ -812,7 +814,30 @@
         groupIdsParameters = "&group_ids=" + groupIds;
       }
     }
-    return geocore.post('/register?project_id=' + geocore.PROJECT_ID + groupIdsParameters, newUser);
+
+    var userGroupTypesParameters = "";
+    if (userGroupTypes) {
+      if (Object.prototype.toString.call(userGroupTypes) === '[object Array]') {
+        userGroupTypesParameters = "&user_group_types=" + encodeURIComponent(userGroupTypes.join(','));
+      } else if (typeof userGroupTypes === 'string') {
+        userGroupTypesParameters = "&user_group_types=" + userGroupTypes;
+      }
+    }
+
+    var userGroupApprovalStatusesParameters = "";
+    if (userGroupApprovalStatuses) {
+      if (Object.prototype.toString.call(userGroupApprovalStatuses) === '[object Array]') {
+        userGroupApprovalStatusesParameters = "&user_group_apv=" + encodeURIComponent(userGroupApprovalStatuses.join(','));
+      } else if (typeof userGroupApprovalStatuses === 'string') {
+        userGroupApprovalStatusesParameters = "&user_group_apv=" + userGroupApprovalStatuses;
+      }
+    }
+
+    return geocore.post('/register?project_id=' + geocore.PROJECT_ID
+        + groupIdsParameters
+        + userGroupTypesParameters
+        + userGroupApprovalStatusesParameters,
+        newUser);
   };
 
   /**
