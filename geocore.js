@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.12';
+  geocore.VERSION = '0.4.13';
 
   /**
    * Current Geocore base URL.
@@ -904,6 +904,11 @@
 
   /* ======= Place Request Builder: Query  */
 
+  /**
+   * Group query object.
+   *
+   * @namespace geocore.groups
+   */
   geocore.groups.query = function () {
     geocore.taggable.query.call(this);
     this._super = geocore.taggable.query.prototype;
@@ -912,17 +917,51 @@
   geocore.groups.query.prototype = Object.create(geocore.taggable.query.prototype);
   geocore.groups.query.prototype.constructor = geocore.groups.query;
 
+  /**
+   * Get a specific group. ID need to be specified.
+   *
+   * @memberof geocore.groups.query
+   * @returns {object} promise that will be fulfilled when the Geocore server returns specified group.
+   */
   geocore.groups.query.prototype.get = function () {
     return this._super.get.call(this, '/groups');
   };
 
+  /**
+   * Get groups that matches the specified criteria.
+   *
+   * @memberof geocore.groups.query
+   * @returns {object} promise that will be fulfilled when the Geocore server returns groups as specified by parameters.
+   */
   geocore.groups.query.prototype.all = function () {
     return this._super.all.call(this, '/groups');
   };
 
+  /**
+   * Get all authorities assigned to the specified group. ID need to be specified.
+   *
+   * @memberof geocore.groups.query
+   * @returns {object} promise that will be fulfilled when the Geocore server returns group-tag relationships.
+   */
   geocore.groups.query.prototype.authorities = function () {
     if (this.id) {
       return geocore.get('/groups/' + this.id + '/auths');
+    } else {
+      var deferred = Q.defer();
+      deferred.reject('Expecting id');
+      return deferred.promise;
+    }
+  };
+
+  /**
+   * Get all tags associated to the specified group. ID need to be specified.
+   *
+   * @memberof geocore.groups.query
+   * @returns {object} promise that will be fulfilled when the Geocore server returns group-tag relationships.
+   */
+  geocore.groups.query.prototype.tags = function () {
+    if (this.id) {
+      return geocore.get('/groups/' + this.id + '/tags');
     } else {
       var deferred = Q.defer();
       deferred.reject('Expecting id');
