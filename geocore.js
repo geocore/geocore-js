@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.14';
+  geocore.VERSION = '0.4.15';
 
   /**
    * Current Geocore base URL.
@@ -523,12 +523,12 @@
   geocore.taggable.operation.prototype = Object.create(geocore.objects.operation.prototype);
   geocore.taggable.operation.prototype.constructor = geocore.taggable.operation;
 
-  geocore.taggable.query.prototype.tag = function (tagIds) {
+  geocore.taggable.operation.prototype.tag = function (tagIds) {
     this.tagIdsToAdd = tagIds;
     return this;
   };
 
-  geocore.taggable.query.prototype.untag = function (tagIds) {
+  geocore.taggable.operation.prototype.untag = function (tagIds) {
     this.tagIdsToDelete = tagIds;
     return this;
   };
