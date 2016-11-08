@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.13';
+  geocore.VERSION = '0.4.14';
 
   /**
    * Current Geocore base URL.
@@ -507,9 +507,33 @@
     return ret;
   };
 
-  /* ======= Taggable Objects Request Builder: Query  */
+  /* ======= Taggable API =========================================================================================== */
 
   geocore.taggable = {};
+
+  /* ======= Taggable Objects Request Builder: Operation  */
+
+  geocore.taggable.operation = function() {
+    geocore.objects.operation.call(this);
+
+    this.tagIdsToAdd = null;
+    this.tagIdsToDelete = null;
+  };
+
+  geocore.taggable.operation.prototype = Object.create(geocore.objects.operation.prototype);
+  geocore.taggable.operation.prototype.constructor = geocore.taggable.operation;
+
+  geocore.taggable.query.prototype.tag = function (tagIds) {
+    this.tagIdsToAdd = tagIds;
+    return this;
+  };
+
+  geocore.taggable.query.prototype.untag = function (tagIds) {
+    this.tagIdsToDelete = tagIds;
+    return this;
+  };
+
+  /* ======= Taggable Objects Request Builder: Query  */
 
   geocore.taggable.query = function () {
     geocore.objects.query.call(this);
@@ -694,7 +718,7 @@
   geocore.objects.customData = {};
 
   geocore.objects.customData.update = function(id, key, value) {
-    return geocore.put('/objs/' + id + '/customData/' + key + '/' + value, null);
+    return geocore.post('/objs/' + id + '/customData/' + key + '/' + value, null);
   };
 
   geocore.objects.customData.del = function(id, key) {
@@ -902,7 +926,7 @@
     return geocore.post('/groups/' + id, groupUpdate);
   };
 
-  /* ======= Place Request Builder: Query  */
+  /* ======= Group Request Builder: Query  */
 
   /**
    * Group query object.
@@ -1003,6 +1027,23 @@
 
     return geocore.post('/groups' + (params.length > 0 ? ("?" + params) : ""), newGroup);
   };
+
+
+  /*
+  geocore.places.tags = {};
+
+  geocore.places.tags.list = function(id) {
+    return geocore.get('/places/' + id + '/tags');
+  };
+
+  geocore.places.tags.update = function(id, tagNames) {
+    return geocore.post('/places/' + id + '/tags?tag_names=' + encodeURIComponent(tagNames.join(',')), null);
+  };
+
+  geocore.places.tags.del = function(id, tagNames) {
+    return geocore.post('/places/' + id + '/tags?del_tag_names=' + encodeURIComponent(tagNames.join(',')), null);
+  };
+  */
 
   /* ======= Authorities API =========================================================================================*/
 
