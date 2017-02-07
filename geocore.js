@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.15';
+  geocore.VERSION = '0.4.16';
 
   /**
    * Current Geocore base URL.
@@ -1028,22 +1028,11 @@
     return geocore.post('/groups' + (params.length > 0 ? ("?" + params) : ""), newGroup);
   };
 
+  geocore.groups.tags = {};
 
-  /*
-  geocore.places.tags = {};
-
-  geocore.places.tags.list = function(id) {
-    return geocore.get('/places/' + id + '/tags');
+  geocore.groups.tags.add = function(id, tagId, customData) {
+    return geocore.post('/groups/' + id + '/tags/' + tagId, customData);
   };
-
-  geocore.places.tags.update = function(id, tagNames) {
-    return geocore.post('/places/' + id + '/tags?tag_names=' + encodeURIComponent(tagNames.join(',')), null);
-  };
-
-  geocore.places.tags.del = function(id, tagNames) {
-    return geocore.post('/places/' + id + '/tags?del_tag_names=' + encodeURIComponent(tagNames.join(',')), null);
-  };
-  */
 
   /* ======= Authorities API =========================================================================================*/
 
