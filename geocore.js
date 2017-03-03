@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.16';
+  geocore.VERSION = '0.4.17';
 
   /**
    * Current Geocore base URL.
@@ -421,6 +421,8 @@
     this.recentlyUpdated = false;
     this.fromDate = null;
     this.toDate = null;
+    this.fromDateCreated = null;
+    this.toDateCreated = null;
     this.parentId = null;
   };
 
@@ -474,6 +476,28 @@
     return this;
   };
 
+  /**
+   * Limits the query result to all objects created after the specified date.
+   *
+   * @param {string} utcDateString UTC date formatted as YYYY/MM/DD hh:mm:ss
+   * @returns {geocore.query.objects}
+   */
+  geocore.objects.query.prototype.createdAfter = function(utcDateString) {
+    this.fromDateCreated = utcDateString;
+    return this;
+  };
+
+  /**
+   * Limits the query result to all objects created before the specified date.
+   *
+   * @param {string} utcDateString UTC date formatted as YYYY/MM/DD hh:mm:ss
+   * @returns {geocore.query.objects}
+   */
+  geocore.objects.query.prototype.createdBefore = function(utcDateString) {
+    this.toDateCreated = utcDateString;
+    return this;
+  };
+
   geocore.objects.query.prototype.withParent = function(parentId) {
     this.parentId = parentId;
     return this;
@@ -503,6 +527,8 @@
     if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
     if (this.fromDate) ret.from_date = this.fromDate;
     if (this.toDate) ret.to_date = this.toDate;
+    if (this.fromDateCreated) ret.from_date_created = this.fromDateCreated;
+    if (this.toDateCreated) ret.to_date_created = this.toDateCreated;
     if (this.parentId) ret.parent = this.parentId;
     return ret;
   };
