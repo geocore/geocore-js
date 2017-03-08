@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.17';
+  geocore.VERSION = '0.4.18';
 
   /**
    * Current Geocore base URL.
@@ -516,6 +516,12 @@
   geocore.objects.query.prototype.all = function (path) {
     return geocore.get(
         (path ? path : '/objs') +
+        geocore.utils.buildQueryString(this.buildQueryParameters()));
+  };
+
+  geocore.objects.query.prototype.count = function (path) {
+    return geocore.get(
+        (path ? path : '/objs/count') +
         geocore.utils.buildQueryString(this.buildQueryParameters()));
   };
 
@@ -1164,6 +1170,10 @@
 
   geocore.places.query.prototype.all = function () {
     return this._super.all.call(this, '/places');
+  };
+
+  geocore.places.query.prototype.count = function () {
+    return this._super.count.call(this, '/places/count');
   };
 
   geocore.places.query.prototype.nearest = function() {
