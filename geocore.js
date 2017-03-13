@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.18';
+  geocore.VERSION = '0.4.19';
 
   /**
    * Current Geocore base URL.
@@ -1136,6 +1136,8 @@
     this.maximumLatitude;
     this.maximumLongitude;
     this.checkinable;
+
+    this.userDetails = false;
   };
 
   geocore.places.query.prototype = Object.create(geocore.taggable.query.prototype);
@@ -1178,7 +1180,7 @@
 
   geocore.places.query.prototype.nearest = function() {
     var deferred = Q.defer();
-    var dict = this._super.buildQueryParameters.call(this);
+    var dict = this.buildQueryParameters();
 
     if (this.centerLatitude && this.centerLongitude) {
       dict.lat = this.centerLatitude;
@@ -1189,11 +1191,11 @@
     }
     deferred.reject('Expecting center lat-lon');
     return deferred.promise; 
-  }
+  };
 
   geocore.places.query.prototype.smallestBounds = function() {
     var deferred = Q.defer();
-    var dict = this._super.buildQueryParameters.call(this);
+    var dict = this.buildQueryParameters();
 
     if (this.centerLatitude && this.centerLongitude) {
       dict.lat = this.centerLatitude;
@@ -1204,11 +1206,11 @@
     }
     deferred.reject('Expecting center lat-lon');
     return deferred.promise; 
-  }
+  };
 
   geocore.places.query.prototype.withinRectangle = function() {
     var deferred = Q.defer();
-    var dict = this._super.buildQueryParameters.call(this);
+    var dict = this.buildQueryParameters();
 
     if (this.minimumLatitude && this.minimumLongitude 
       && this.maximumLatitude && this.maximumLongitude) {
@@ -1222,15 +1224,18 @@
     }
     deferred.reject('Expecting min-max lat-lon');
     return deferred.promise; 
-  }
+  };
 
-  geocore.places.query.prototype.events = function() {
+  geocore.places.query.prototype.withUserDetails = function() {
+    this.userDetails = true;
+    return this;
+  };
 
-  }
-
-  geocore.places.query.prototype.eventRelationships = function() {
-
-  }
+  geocore.places.query.prototype.buildQueryParameters = function () {
+    var ret = this._super.buildQueryParameters.call(this);
+    if (this.userDetails) ret.user_detail = true;
+    return ret;
+  };
 
   //------End of added methods---------
 
