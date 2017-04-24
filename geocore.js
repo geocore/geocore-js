@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.19';
+  geocore.VERSION = '0.4.20';
 
   /**
    * Current Geocore base URL.
@@ -529,6 +529,7 @@
     var ret = {};
     if (this.num) ret.num = this.num;
     if (this.page) ret.page = this._page;
+    if (this.name) ret.name_prefix = this.name;
     if (this.recentlyCreated) ret.recent_created = this.recentlyCreated;
     if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
     if (this.fromDate) ret.from_date = this.fromDate;
