@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.20';
+  geocore.VERSION = '0.4.21';
 
   /**
    * Current Geocore base URL.
@@ -691,6 +691,17 @@
    */
   geocore.objects.bins.url = function(id, key) {
     return geocore.get('/objs/' + id + '/bins/' + key + '/url');
+  };
+
+  /**
+   * Delete object's binary data
+   *
+   * @param {string} id - Object's ID or system ID.
+   * @param {string} key - Binary data key to be deleted
+   * @returns {object} promise that will be fulfilled when the Geocore server returns the key that has just been deleted.
+   */
+  geocore.objects.bins.del = function(id, key) {
+    return geocore.del('/objs/' + id + '/bins/' + key);
   };
 
   /**
