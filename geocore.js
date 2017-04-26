@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.21';
+  geocore.VERSION = '0.4.22';
 
   /**
    * Current Geocore base URL.
@@ -1552,6 +1552,7 @@
 
   geocore.ref = {};
   geocore.ref.gadm = {};
+  geocore.ref.jp = {};
 
   geocore.ref.gadm.level0 = function() {
     return geocore.get('/public/ref/gadm');
@@ -1567,6 +1568,26 @@
 
   geocore.ref.gadm.level3 = function (level0Id, level1Id, level2Id) {
     return geocore.get('/public/ref/gadm/' + level0Id + '/' + level1Id + '/' + level2Id);
+  };
+
+  geocore.ref.jp.regions = function(codePrefix) {
+    return geocore.get('/public/ref/jp/regions/' + codePrefix);
+  };
+
+  geocore.ref.jp.regionPrefectures = function(regionCode) {
+    return geocore.get('/public/ref/jp/regions/' + regionCode + '/prefectures');
+  };
+
+  geocore.ref.jp.prefectureCities = function(prefectureCode) {
+    return geocore.get('/public/ref/jp/prefectures/' + prefectureCode + '/cities');
+  };
+
+  geocore.ref.jp.prefectureTrainLines = function(prefectureCode) {
+    return geocore.get('/public/ref/jp/prefectures/' + prefectureCode + '/lines');
+  };
+
+  geocore.ref.jp.prefectureTrainLineStations = function(prefectureCode, lineCode) {
+    return geocore.get('/public/ref/jp/prefectures/' + prefectureCode + '/lines/' + lineCode + '/stations');
   };
 
   /* ======= Epilogue =============================================================================================== */
