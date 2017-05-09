@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.24';
+  geocore.VERSION = '0.4.26';
 
   /**
    * Current Geocore base URL.
@@ -527,8 +527,8 @@
 
   geocore.objects.query.prototype.buildQueryParameters = function () {
     var ret = {};
-    if (this.num) ret.num = this.num;
-    if (this.page) ret.page = this._page;
+    if (this.num >= 0) ret.num = this.num;
+    if (this._page >= 0) ret.page = this._page;
     if (this.name) ret.name_prefix = this.name;
     if (this.recentlyCreated) ret.recent_created = this.recentlyCreated;
     if (this.recentlyUpdated) ret.recent_updated = this.recentlyUpdated;
@@ -1612,6 +1612,14 @@
 
   geocore.ref.jp.prefectureCities = function(prefectureCode) {
     return geocore.get('/public/ref/jp/prefectures/' + prefectureCode + '/cities');
+  };
+
+  geocore.ref.jp.prefectureBounds = function(prefectureCode) {
+    return geocore.get('/public/ref/jp/prefectures/' + prefectureCode + '/bounds');
+  };
+
+  geocore.ref.jp.citiesBounds = function(cityCodesArray) {
+    return geocore.get('/public/ref/jp/cities/bounds?city_codes=' + encodeURIComponent(cityCodesArray.join(',')));
   };
 
   geocore.ref.jp.prefectureTrainLines = function(prefectureCode) {
