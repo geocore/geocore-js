@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.22';
+  geocore.VERSION = '0.4.24';
 
   /**
    * Current Geocore base URL.
@@ -1140,14 +1140,20 @@
     geocore.taggable.query.call(this);
     this._super = geocore.taggable.query.prototype;
 
-    this.centerLatitude;
-    this.centerLongitude;
-    this.radius;
-    this.minimumLatitude;
-    this.minimumLongitude;
-    this.maximumLatitude;
-    this.maximumLongitude;
-    this.checkinable;
+    this.centerLatitude = null;
+    this.centerLongitude = null;
+    this.radius = null;
+    this.minimumLatitude = null;
+    this.minimumLongitude = null;
+    this.maximumLatitude = null;
+    this.maximumLongitude = null;
+    this.checkinable = false;
+
+    this.japanCityCode = null;
+    this.japanPrefectureCode = null;
+    this.japanTrainLineCode = null;
+    this.distanceToJapanTrainLine = null;
+    this.japanTrainStationCodes = null;
 
     this.userDetails = false;
   };
@@ -1155,24 +1161,45 @@
   geocore.places.query.prototype = Object.create(geocore.taggable.query.prototype);
   geocore.places.query.prototype.constructor = geocore.places.query;
 
-  geocore.places.query.prototype.setCenter = function (newCenterLatitude, newCenterLongitude) {
+  geocore.places.query.prototype.setCenter = function(newCenterLatitude, newCenterLongitude) {
     this.centerLatitude = newCenterLatitude;
     this.centerLongitude = newCenterLongitude
     return this;
-  }
+  };
 
-  geocore.places.query.prototype.setRadius = function (newRadius) {
+  geocore.places.query.prototype.setRadius = function(newRadius) {
     this.radius = newRadius;
     return this;
   };
 
-  geocore.places.query.prototype.setRectangle = function (newMinimumLatitude, newMinimumLongitude, newMaximumLatitude, newMaximumLongitude) {
+  geocore.places.query.prototype.setRectangle = function(newMinimumLatitude, newMinimumLongitude, newMaximumLatitude, newMaximumLongitude) {
     this.minimumLatitude = newMinimumLatitude;
     this.minimumLongitude = newMinimumLongitude;
     this.maximumLatitude = newMaximumLatitude;
     this.maximumLongitude = newMaximumLongitude;
       return this;
-  };  
+  };
+
+  geocore.places.query.prototype.withinJapanCity = function(japanCityCode) {
+    this.japanCityCode = japanCityCode;
+    return this;
+  };
+
+  geocore.places.query.prototype.withinJapanPrefecture = function(japanPrefectureCode) {
+    this.japanPrefectureCode = japanPrefectureCode;
+    return this;
+  };
+
+  geocore.places.query.prototype.withinDistanceToJapanTrainLine = function(japanTrainLineCode, distanceToJapanTrainLine) {
+    this.japanTrainLineCode = japanTrainLineCode;
+    this.distanceToJapanTrainLine = distanceToJapanTrainLine;
+    return this;
+  };
+
+  geocore.places.query.prototype.nearestToJapanTrainStations = function(japanTrainStationCodesArray) {
+    this.japanTrainStationCodes = japanTrainStationCodesArray;
+    return this;
+  };
 
   geocore.places.query.prototype.onlyCheckinable = function () {
     this.checkinable = true;
@@ -1197,7 +1224,7 @@
     if (this.centerLatitude && this.centerLongitude) {
       dict.lat = this.centerLatitude;
       dict.lon = this.centerLongitude;
-      if(this.checkinable) dict.checkinable = 'true';
+      if (this.checkinable) dict.checkinable = 'true';
       return geocore.get(
         "/places/search/nearest" + geocore.utils.buildQueryString(dict));
     }
@@ -1246,6 +1273,11 @@
   geocore.places.query.prototype.buildQueryParameters = function () {
     var ret = this._super.buildQueryParameters.call(this);
     if (this.userDetails) ret.user_detail = true;
+    if (this.japanCityCode) ret.supp_jp_code_city = this.japanCityCode;
+    if (this.japanPrefectureCode) ret.supp_jp_code_prefecture = this.japanPrefectureCode;
+    if (this.japanTrainLineCode) ret.supp_jp_tline_cd = this.japanTrainLineCode;
+    if (this.distanceToJapanTrainLine) ret.supp_jp_tline_dist = this.distanceToJapanTrainLine;
+    if (this.japanTrainStationCodes) ret.supp_jp_tstat_cds_near = this.japanTrainStationCodes.join();
     return ret;
   };
 
