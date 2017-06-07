@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.26';
+  geocore.VERSION = '0.4.29';
 
   /**
    * Current Geocore base URL.
@@ -1154,6 +1154,7 @@
     this.japanTrainLineCode = null;
     this.distanceToJapanTrainLine = null;
     this.japanTrainStationCodes = null;
+    this.distanceToJapanTrainStations = null;
 
     this.userDetails = false;
   };
@@ -1196,8 +1197,9 @@
     return this;
   };
 
-  geocore.places.query.prototype.nearestToJapanTrainStations = function(japanTrainStationCodesArray) {
+  geocore.places.query.prototype.nearestToJapanTrainStations = function(japanTrainStationCodesArray, distanceToJapanTrainStations) {
     this.japanTrainStationCodes = japanTrainStationCodesArray;
+    this.distanceToJapanTrainStations = distanceToJapanTrainStations;
     return this;
   };
 
@@ -1278,6 +1280,7 @@
     if (this.japanTrainLineCode) ret.supp_jp_tline_cd = this.japanTrainLineCode;
     if (this.distanceToJapanTrainLine) ret.supp_jp_tline_dist = this.distanceToJapanTrainLine;
     if (this.japanTrainStationCodes) ret.supp_jp_tstat_cds_near = this.japanTrainStationCodes.join();
+    if (this.distanceToJapanTrainStations) ret.supp_jp_tstat_cds_dist = this.distanceToJapanTrainStations;
     return ret;
   };
 
@@ -1622,12 +1625,24 @@
     return geocore.get('/public/ref/jp/cities/bounds?city_codes=' + encodeURIComponent(cityCodesArray.join(',')));
   };
 
+  geocore.ref.jp.trainLineBounds = function(lineCode) {
+    return geocore.get('/public/ref/jp/lines/' + lineCode + '/bounds');
+  };
+
+  geocore.ref.jp.trainLinesBounds = function(lineCodesArray) {
+    return geocore.get('/public/ref/jp/lines/bounds?line_codes=' + encodeURIComponent(lineCodesArray.join(',')));
+  };
+
   geocore.ref.jp.prefectureTrainLines = function(prefectureCode) {
     return geocore.get('/public/ref/jp/prefectures/' + prefectureCode + '/lines');
   };
 
   geocore.ref.jp.prefectureTrainLineStations = function(prefectureCode, lineCode) {
     return geocore.get('/public/ref/jp/prefectures/' + prefectureCode + '/lines/' + lineCode + '/stations');
+  };
+
+  geocore.ref.jp.stationsBounds = function(stationCodesArray) {
+    return geocore.get('/public/ref/jp/stations/bounds?station_codes=' + encodeURIComponent(stationCodesArray.join(',')));
   };
 
   /* ======= Epilogue =============================================================================================== */
