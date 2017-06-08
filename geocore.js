@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.29';
+  geocore.VERSION = '0.4.30';
 
   /**
    * Current Geocore base URL.
@@ -1070,6 +1070,20 @@
     }
 
     return geocore.post('/groups' + (params.length > 0 ? ("?" + params) : ""), newGroup);
+  };
+
+  geocore.groups.manage = function(id, addUserIds, delUserIds) {
+    var params = "";
+    if (addUserIds && addUserIds.length > 0) {
+      params = params + "user_ids=" + encodeURIComponent(addUserIds.join(','));
+    }
+    if (delUserIds && delUserIds.length > 0) {
+      if (params.length > 0) {
+        params = params + "&";
+      }
+      params = params + "del_user_ids=" + encodeURIComponent(delUserIds.join(','));
+    }
+    return geocore.post('/groups/' + id + "/users" + (params.length > 0 ? ("?" + params) : ""), {});
   };
 
   geocore.groups.tags = {};
