@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.31';
+  geocore.VERSION = '0.4.32';
 
   /**
    * Current Geocore base URL.
@@ -852,6 +852,24 @@
    * @returns {object} promise that will be fulfilled when the Geocore server returns updated user object.
    */
   geocore.users.update = function(id, userUpdate) {
+    return geocore.post('/users/' + id, userUpdate);
+  };
+
+  /**
+   * Update user's password
+   *
+   * @memberof geocore.users
+   * @param id {string} id - User's ID or system ID.
+   * @param currentPassword {string} id - User's current password
+   * @param newPassword {string} id - User's new password
+   * @returns {Object} promise that will be fulfilled when the Geocore server returns updated user object.
+   */
+  geocore.users.updatePassword = function(id, currentPassword, newPassword) {
+    var userUpdate = {
+      "id": id,
+      "password": currentPassword,
+      "newPassword": newPassword
+    };
     return geocore.post('/users/' + id, userUpdate);
   };
 
