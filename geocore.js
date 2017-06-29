@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.30';
+  geocore.VERSION = '0.4.31';
 
   /**
    * Current Geocore base URL.
@@ -1164,6 +1164,7 @@
     this.checkinable = false;
 
     this.japanCityCode = null;
+    this.japanRegionCode = null;
     this.japanPrefectureCode = null;
     this.japanTrainLineCode = null;
     this.distanceToJapanTrainLine = null;
@@ -1202,6 +1203,11 @@
 
   geocore.places.query.prototype.withinJapanPrefecture = function(japanPrefectureCode) {
     this.japanPrefectureCode = japanPrefectureCode;
+    return this;
+  };
+
+  geocore.places.query.prototype.withinJapanRegion = function(japanRegionCode) {
+    this.japanRegionCode = japanRegionCode;
     return this;
   };
 
@@ -1291,6 +1297,7 @@
     if (this.userDetails) ret.user_detail = true;
     if (this.japanCityCode) ret.supp_jp_code_city = this.japanCityCode;
     if (this.japanPrefectureCode) ret.supp_jp_code_prefecture = this.japanPrefectureCode;
+    if (this.japanRegionCode) ret.supp_jp_code_region = this.japanRegionCode;
     if (this.japanTrainLineCode) ret.supp_jp_tline_cd = this.japanTrainLineCode;
     if (this.distanceToJapanTrainLine) ret.supp_jp_tline_dist = this.distanceToJapanTrainLine;
     if (this.japanTrainStationCodes) ret.supp_jp_tstat_cds_near = this.japanTrainStationCodes.join();
