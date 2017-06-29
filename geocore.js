@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.32';
+  geocore.VERSION = '0.4.33';
 
   /**
    * Current Geocore base URL.
@@ -870,7 +870,7 @@
       "password": currentPassword,
       "newPassword": newPassword
     };
-    return geocore.post('/users/' + id, userUpdate);
+    return geocore.post('/users/' + id + "/password", userUpdate);
   };
 
   /**
