@@ -66,7 +66,7 @@
    * JavaScript API version.
    * @memberof geocore
    */
-  geocore.VERSION = '0.4.33';
+  geocore.VERSION = '0.4.34';
 
   /**
    * Current Geocore base URL.
@@ -1167,7 +1167,7 @@
   geocore.places = {};
 
   /* ======= Place Request Builder: Query  */
-  
+
   geocore.places.query = function () {
     geocore.taggable.query.call(this);
     this._super = geocore.taggable.query.prototype;
@@ -1197,7 +1197,7 @@
 
   geocore.places.query.prototype.setCenter = function(newCenterLatitude, newCenterLongitude) {
     this.centerLatitude = newCenterLatitude;
-    this.centerLongitude = newCenterLongitude
+    this.centerLongitude = newCenterLongitude;
     return this;
   };
 
@@ -1269,7 +1269,7 @@
         "/places/search/nearest" + geocore.utils.buildQueryString(dict));
     }
     deferred.reject('Expecting center lat-lon');
-    return deferred.promise; 
+    return deferred.promise;
   };
 
   geocore.places.query.prototype.smallestBounds = function() {
@@ -1284,14 +1284,14 @@
         "/places/search/smallestbounds" + geocore.utils.buildQueryString(dict));
     }
     deferred.reject('Expecting center lat-lon');
-    return deferred.promise; 
+    return deferred.promise;
   };
 
   geocore.places.query.prototype.withinRectangle = function() {
     var deferred = Q.defer();
     var dict = this.buildQueryParameters();
 
-    if (this.minimumLatitude && this.minimumLongitude 
+    if (this.minimumLatitude && this.minimumLongitude
       && this.maximumLatitude && this.maximumLongitude) {
       dict.min_lat = this.minimumLatitude;
       dict.min_lon = this.minimumLongitude;
@@ -1302,7 +1302,23 @@
         "/places/search/within/rect" + geocore.utils.buildQueryString(dict));
     }
     deferred.reject('Expecting min-max lat-lon');
-    return deferred.promise; 
+    return deferred.promise;
+  };
+
+  geocore.places.query.prototype.withinCircle = function() {
+    var deferred = Q.defer();
+    var dict = this.buildQueryParameters();
+
+    if (this.centerLatitude && this.centerLongitude && this.radius) {
+      dict.lat = this.centerLatitude;
+      dict.lon = this.centerLongitude;
+      dict.radius = this.radius;
+      if (this.checkinable) dict.checkinable = 'true';
+      return geocore.get(
+          "/places/search/within/circle" + geocore.utils.buildQueryString(dict));
+    }
+    deferred.reject('Expecting center lat-lon and radius');
+    return deferred.promise;
   };
 
   geocore.places.query.prototype.withUserDetails = function() {
@@ -1464,7 +1480,7 @@
   };
 
   geocore.places.items.add = function(id, item, tagNames) {
-    var path = '/places/' + id + '/items' 
+    var path = '/places/' + id + '/items'
     + ((tagNames && tagNames.length > 0) ? ('?tag_names=' + encodeURIComponent(tagNames.join(','))) : '');
     return geocore.post(path, item);
   };
@@ -1485,7 +1501,7 @@
   geocore.items.query.prototype.get = function () {
     return geocore.taggable.query.prototype.get.call(this, '/items/')
       .then(function(item) {
-        var itemQuery = new geocore.items.query(); 
+        var itemQuery = new geocore.items.query();
         item.events = function() {
           return itemQuery.setId(item.id).events();
         };
@@ -1512,7 +1528,7 @@
         return items;
       });
   };
-  
+
   geocore.items.query.prototype.places = function () {
     if (this.id) {
       return geocore.get('/items/' + this.id + '/places');
@@ -1534,7 +1550,7 @@
   }
 
   //------------End of new methods----------------------------------------------
-  
+
   geocore.items.get = function (id) {
     return geocore.get('/items/' + id);
   };
@@ -1575,8 +1591,8 @@
   };
 
   geocore.items.tags.replace = function(id, oldTag, newTag) {
-    return geocore.post('/items/' + id + 
-      '/tags?tag_names=' + encodeURIComponent(newTag) + 
+    return geocore.post('/items/' + id +
+      '/tags?tag_names=' + encodeURIComponent(newTag) +
       '&del_tag_names=' + encodeURIComponent(oldTag), null);
   };
 
